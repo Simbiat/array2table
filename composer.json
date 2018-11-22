@@ -1,0 +1,24 @@
+{
+    "name": "simbiat/array2table",
+    "type": "library",
+    "keywords": ["array","table","php","converter"],
+    "description": "Library to convert arrays to table.",
+    "homepage": "https://github.com/Simbiat/array2table",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Dmitry Kustov",
+            "email": "simbiat@outlook.com",
+            "homepage": "https://simbiat.ru",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.0.7"
+    },
+    "autoload": {
+        "psr-0": {
+            "array2table\\": "/"
+        }
+    }
+}
