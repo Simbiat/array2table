@@ -16,9 +16,18 @@
     "require": {
         "php": "^7.0.7"
     },
+    "suggest": {
+        "simbiat/prettyurl": "Applies additional conversions for pretty SEO URLs",
+        "simbiat/cute-bytes": "Allows to present bytes in human-readable format",
+        "simbiat/sand-clock": "Collection of functions for presenting time-related objects"
+    },
     "autoload": {
         "psr-0": {
-            "array2table\\": "/"
+            "array2table\\": "src/"
         }
-    }
+    },
+	"support": {
+		"issues": "https://github.com/Simbiat/array2table/issues",
+		"source": "https://github.com/Simbiat/array2table"
+	}
 }
