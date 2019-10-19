@@ -22,7 +22,7 @@
         "simbiat/sand-clock": "Collection of functions for presenting time-related objects"
     },
     "autoload": {
-        "psr-0": {
+        "psr-4": {
             "array2table\\": "src/"
         }
     },
