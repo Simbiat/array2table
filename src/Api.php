@@ -6,6 +6,8 @@ class Api
 {
     #Generate <table> if true or <div> if false
     private $semantic = true;
+    #Force basic inline styling for <div> variant. Custom styling is recommended
+    private $styling = false;
     #Generate with first column being a checkbox with unique ID if true. Works for multi-arrays only
     private $checkbox = false;
     #Generate with checkbox checked
@@ -55,6 +57,13 @@ class Api
     private $timeformat = 'H:i:s';
     private $datetimeformat = '';
     private $language = 'en';
+    #Set an optional currency code (or symbol) for 'price' type. Add space at the end to put it beofre the value
+    private $currencyCode = '';
+    #Set precission of floating point for 'price' type
+    private $currencyPrecision = 2;
+    #Set to 'false' to treat values for 'price' type as floats. Treat values as fractions (like cents in case of USD) by default
+    private $currencyFraction = true;
+    #Set default values for 'textarea' type
     private $textareaSettings = [
         'rows'=>'20',
         'cols'=>'2',
@@ -124,15 +133,23 @@ class Api
         }
         #Set header
         if ($this->multiflag) {
+            $array = array_values($array);
             if (!empty($array[0])) {
                 if ($this->assotiative($array[0]) && empty($this->getHeader())) {
                     $this->setHeader(array_keys($array[0]));
                 }
             }
+            #Convert data's assotiative array to regular one for consistency
+            $array = array_values($array);
+            foreach ($array as $row=>$rowdata) {
+                $array[$row] = array_values($rowdata);
+            }
         } else {
             if ($this->assotiative($array) && empty($this->getHeader())) {
                 $this->setHeader(array_keys($array));
             }
+            #Convert data's assotiative array to regular one for consistency
+            $array = array_values($array);
         }
         #Check if types for each column has same length as actual column data
         $tempTypes = array_values($this->getTypes());
@@ -149,136 +166,155 @@ class Api
                 }
             }
         }
-        #Convert data's assotiative array to regular one for consistency
-        $array = array_values($array);
         #Convert types' assotiative array to regular one for consistency
         $this->setTypes(array_values($tempTypes));
-        if ($this->getSemantic()) {
-            $table = $this->table($array);
-        } else {
-            $table = $this->div($array);
+        #Convert footer assotiative array to regular one for consistency
+        $this->setFooter(array_values($this->getFooter()));
+        #Checking if footer is a function and updating value accordingly
+        if (!empty($this->getFooter())) {
+            $tempFooter = array_values($this->getFooter());
+            foreach ($tempFooter as $column=>$footer) {
+                if (in_array($footer, ['#func_sum', '#func_avg', '#func_min', '#func_max'])) {
+                    if ($this->multiflag) {
+                        if (!is_array($this->getTypes()[$column])) {
+                            $columnData = array_column($array, $column);
+                            switch ($footer) {
+                                case '#func_sum':
+                                    $tempFooter[$column] = 'Sum: '.$this->prepare(array_sum($columnData), $column, 0, true);
+                                    break;
+                                case '#func_avg':
+                                    $tempFooter[$column] = 'Avg: '.$this->prepare(array_sum($columnData)/$length, $column, 0, true);
+                                    break;
+                                case '#func_min':
+                                    $tempFooter[$column] = 'Min: '.$this->prepare(min($columnData), $column, 0, true);
+                                    break;
+                                case '#func_max':
+                                    $tempFooter[$column] = 'Max: '.$this->prepare(max($columnData), $column, 0, true);
+                                    break;
+                            }
+                        } else {
+                            throw new \UnexpectedValueException('Footer function was sent for column '.$column.', but column has multiple types assigned to it.');
+                        }
+                    } else {
+                        throw new \UnexpectedValueException('Footer function was sent for column '.$column.', but data is made up of one row.');
+                    }
+                }
+            }
+            $this->setFooter($tempFooter);
         }
-        return $table;
+        return $this->table($array);
     }
     
     
     #Reseting values. Useful, in case, someone decides to use same object several times
     public function default(): self
     {
-        $this->setHeader([])->setFooter([])->setColGroup([])->setTypes([])->setSemantic(true)->setEditable(false)->setCheckbox(false)->setChecked(false)->setSanitize(true)->setCaption('')->setRepeatHeader(0)->setIdPrefix('simbiat')->setCounter('checkbox', 1)->setCounter('email', 1)->setCounter('url', 1)->setCounter('textarea', 1)->setCounter('file', 1)->setCounter('text', 1)->setCounter('tel', 1)->setCounter('password', 1)->setCounter('img', 1)->setCounter('price', 1)->setCounter('bytes', 1)->setCounter('seconds', 1)->setCounter('datetime', 1)->setCounter('time', 1)->setCounter('date', 1)->setCounter('html', 1)->setMultipleFiles(false);
+        $this->setHeader([])->setFooter([])->setColGroup([])->setTypes([])->setSemantic(true)->setEditable(false)->setCheckbox(false)->setChecked(false)->setSanitize(true)->setCaption('')->setRepeatHeader(0)->setIdPrefix('simbiat')->setCounter('checkbox', 1)->setCounter('email', 1)->setCounter('url', 1)->setCounter('textarea', 1)->setCounter('file', 1)->setCounter('text', 1)->setCounter('tel', 1)->setCounter('password', 1)->setCounter('img', 1)->setCounter('price', 1)->setCounter('bytes', 1)->setCounter('seconds', 1)->setCounter('datetime', 1)->setCounter('time', 1)->setCounter('date', 1)->setCounter('html', 1)->setMultipleFiles(false)->setCurrencyCode('')->setCurrencyPrecision(2)->setCurrencyFraction(true);
         return $this;
-    }
-    
-    private function div(array $array): string
-    {
-        $table = '<div>';
-        #fill in logic
-        $table = '</div>';
-        return $table;
     }
     
     private function table(array $array): string
     {
         #Get prefix
         $prefixid = $this->getIdPrefix();
-        $table = '<table id="'.$prefixid.'table">';
+        $table = '<'.($this->getSemantic() ? 'table' : 'div'.($this->getStyling() ? ' style="display:table;border-spacing:2px;"' : '')).' id="'.$prefixid.'table">';
         #Set caption
         if (!empty($this->getCaption())) {
-            $table .= '<caption id="'.$prefixid.'caption">'.$this->getCaption().'</caption>';
+            $table .= '<'.($this->getSemantic() ? 'caption' : 'div'.($this->getStyling() ? ' style="display:table-caption;text-align:center;"' : '')).' id="'.$prefixid.'caption">'.$this->getCaption().'</'.($this->getSemantic() ? 'caption' : 'div').'>';
         }
         #Set colgroups
-        if ($this->groupscount != 0 && !empty($this->getColGroup())) {
-            $table .= '<colgroup id="'.$prefixid.'colgroup">';
+        if ($this->groupscount != 0 && !empty($this->getColGroup()) && $this->getSemantic()) {
+            $table .= '<'.($this->getSemantic() ? 'colgroup' : 'div'.($this->getStyling() ? ' style="display:table-column-group;"' : '')).' id="'.$prefixid.'colgroup">';
             foreach ($this->getColGroup() as $key=>$group) {
-                $table .= '<col  id="'.$prefixid.'col_'.$key.'" span="'.$group['span'].'"';
+                $table .= '<'.($this->getSemantic() ? 'col' : 'div'.($this->getStyling() ? ' style="display:table-column;"' : '')).'  id="'.$prefixid.'col_'.$key.'" span="'.$group['span'].'"';
                 if (!empty($group['class'])) {
                     $table .= ' class="'.$group['class'].'"';
                 }
                 if (!empty($group['style'])) {
                     $table .= ' style="'.$group['style'].'"';
                 }
-                $table .= '>';
+                $table .= '>'.($this->getSemantic() ? '' : '</div>');
             }
-            $table .= '</colgroup>';
+            $table .= '</'.($this->getSemantic() ? 'colgroup' : 'div').'>';
         }
         #Set header
         if (!empty($this->getHeader())) {
-            $table .= '<thead class="'.$prefixid.'thead"><tr>';
+            $table .= '<'.($this->getSemantic() ? 'thead' : 'div'.($this->getStyling() ? ' style="display:table-header-group;font-weight:bold;text-align:center;"' : '')).' class="'.$prefixid.'thead"><'.($this->getSemantic() ? 'tr' : 'div'.($this->getStyling() ? ' style="display:table-row;"' : '')).'>';
             #Add checkbox column (empty for header)
             if ($this->getCheckbox()) {
-                   $table .=  '<th class="'.$prefixid.'checkbox_dummy_field"></th>';
+                   $table .=  '<'.($this->getSemantic() ? 'th' : 'div'.($this->getStyling() ? ' style="display:table-cell;"' : '')).' class="'.$prefixid.'checkbox_dummy_field"></'.($this->getSemantic() ? 'th' : 'div').'>';
             }
             foreach ($this->getHeader() as $key=>$header) {
-                $table .= '<th class="'.$prefixid.'th_'.$key.'">'.$header.'</th>';
+                $table .= '<'.($this->getSemantic() ? 'th' : 'div'.($this->getStyling() ? ' style="display:table-cell;"' : '')).' class="'.$prefixid.'th_'.$key.'">'.$header.'</'.($this->getSemantic() ? 'th' : 'div').'>';
             }
-            $table .= '</tr></thead>';
+            $table .= '</'.($this->getSemantic() ? 'tr' : 'div').'></'.($this->getSemantic() ? 'thead' : 'div').'>';
         }
-        $table .= '<tbody id="'.$prefixid.'tbody">';
+        $table .= '<'.($this->getSemantic() ? 'tbody' : 'div'.($this->getStyling() ? ' style="display:table-row-group;"' : '')).' id="'.$prefixid.'tbody">';
         #Check if array of array
         if ($this->multiflag) {
             foreach ($array as $row=>$subarray) {
                 if ($row > 0 && $this->getRepeatHeader() !== 0 && !empty($this->getHeader()) && fmod($row+1, $this->getRepeatHeader()) === 0.0) {
-                    $table .= '<tr>';
+                    $table .= '<'.($this->getSemantic() ? 'tr' : 'div'.($this->getStyling() ? ' style="display:table-row;"' : '')).'>';
                     #Add checkbox column (empty for header)
                     if ($this->getCheckbox()) {
-                           $table .=  '<th class="'.$prefixid.'checkbox_dummy_field"></th>';
+                           $table .=  '<'.($this->getSemantic() ? 'th' : 'div'.($this->getStyling() ? ' style="display:table-cell;"' : '')).' class="'.$prefixid.'checkbox_dummy_field"></'.($this->getSemantic() ? 'th' : 'div').'>';
                     }
                     foreach ($this->getHeader() as $key=>$header) {
-                        $table .= '<th class="'.$prefixid.'th_'.$key.'">'.$header.'</th>';
+                        $table .= '<'.($this->getSemantic() ? 'th' : 'div'.($this->getStyling() ? ' style="display:table-cell;"' : '')).' class="'.$prefixid.'th_'.$key.'">'.$header.'</'.($this->getSemantic() ? 'th' : 'div').'>';
                     }
-                    $table .= '</tr>';
+                    $table .= '</'.($this->getSemantic() ? 'tr' : 'div').'>';
                 }
-                $table .= '<tr id="'.$prefixid.'td_'.$row.'">';
+                $table .= '<'.($this->getSemantic() ? 'tr' : 'div'.($this->getStyling() ? ' style="display:table-row;"' : '')).' id="'.$prefixid.'tr_'.$row.'">';
                 #Add checkbox column
                 if ($this->getCheckbox()) {
-                    $table .=  '<td class="'.$prefixid.'checkbox_field" id="'.$prefixid.'td_checkbox_'.$row.'"><input type="checkbox" id="'.$prefixid.'checkbox_'.$row.'"'.($this->getChecked() ? ' checked' : '').'></td>';
+                    $table .=  '<'.($this->getSemantic() ? 'td' : 'div'.($this->getStyling() ? ' style="display:table-cell;"' : '')).' class="'.$prefixid.'checkbox_field" id="'.$prefixid.'td_checkbox_'.$row.'"><input type="checkbox" id="'.$prefixid.'checkbox_'.$row.'"'.($this->getChecked() ? ' checked' : '').'></'.($this->getSemantic() ? 'td' : 'div').'>';
                 }
                 $subarray = array_values($subarray);
                 foreach ($subarray as $column=>$cell) {
-                    $table .= '<td id="'.$prefixid.'td_'.$row.'_'.$column.'">'.$this->prepare($cell, $column, $row).'</td>';
+                    $table .= '<'.($this->getSemantic() ? 'td' : 'div'.($this->getStyling() ? ' style="display:table-cell;"' : '')).' id="'.$prefixid.'td_'.$row.'_'.$column.'">'.$this->prepare($cell, $column, $row).'</'.($this->getSemantic() ? 'td' : 'div').'>';
                 }
-                $table .= '</tr>';
+                $table .= '</'.($this->getSemantic() ? 'tr' : 'div').'>';
             }
         } else {
-            $table .= '<tr id="'.$prefixid.'tr_0">';
+            $table .= '<'.($this->getSemantic() ? 'tr' : 'div'.($this->getStyling() ? ' style="display:table-row;"' : '')).' id="'.$prefixid.'tr_0">';
             $array = array_values($array);
             foreach ($array as $column=>$cell) {
-                $table .= '<td id="'.$prefixid.'td_0_'.$column.'">'.$this->prepare($cell, $column).'</td>';
+                $table .= '<'.($this->getSemantic() ? 'td' : 'div'.($this->getStyling() ? ' style="display:table-cell;"' : '')).' id="'.$prefixid.'td_0_'.$column.'">'.$this->prepare($cell, $column).'</'.($this->getSemantic() ? 'td' : 'div').'>';
             }
-            $table .= '</tr>';
+            $table .= '</'.($this->getSemantic() ? 'tr' : 'div').'>';
         }
-        $table .= '</tbody>';
+        $table .= '</'.($this->getSemantic() ? 'tbody' : 'div').'>';
         #Set footer
         if (!empty($this->getFooter())) {
-            $table .= '<tfoot id="'.$prefixid.'tfoot"><tr>';
+            $table .= '<'.($this->getSemantic() ? 'tfoot' : 'div'.($this->getStyling() ? ' style="display:table-footer-group;font-weight:bold;text-align:center;"' : '')).' id="'.$prefixid.'tfoot"><'.($this->getSemantic() ? 'tr' : 'div'.($this->getStyling() ? ' style="display:table-row;"' : '')).'>';
             #Add checkbox column (empty for footer)
             if ($this->getCheckbox()) {
-                    $table .=  '<th class="'.$prefixid.'checkbox_dummy_field"></th>';
+                    $table .=  '<'.($this->getSemantic() ? 'th' : 'div'.($this->getStyling() ? ' style="display:table-cell;"' : '')).' class="'.$prefixid.'checkbox_dummy_field"></'.($this->getSemantic() ? 'th' : 'div').'>';
             }
             foreach ($this->getFooter() as $key=>$footer) {
-                $table .= '<th class="'.$prefixid.'th_'.$key.'">'.$footer.'</th>';
+                $table .= '<'.($this->getSemantic() ? 'th' : 'div'.($this->getStyling() ? ' style="display:table-cell;"' : '')).' class="'.$prefixid.'th_'.$key.'">'.$footer.'</'.($this->getSemantic() ? 'th' : 'div').'>';
             }
-            $table .= '</tr></tfoot>';
+            $table .= '</'.($this->getSemantic() ? 'tr' : 'div').'></'.($this->getSemantic() ? 'tfoot' : 'div').'>';
         } else {
             #If no footer, but have header and use of header as footer is enabled - use header
             if ($this->getFooterHeader() && !empty($this->getHeader())) {
-                $table .= '<tfoot id="'.$prefixid.'tfoot"><tr>';
+                $table .= '<'.($this->getSemantic() ? 'tfoot' : 'div'.($this->getStyling() ? ' style="display:table-footer-group;font-weight:bold;text-align:center;"' : '')).' id="'.$prefixid.'tfoot"><'.($this->getSemantic() ? 'tr' : 'div'.($this->getStyling() ? ' style="display:table-row;"' : '')).'>';
                 #Add checkbox column (empty for footer)
                 if ($this->getCheckbox()) {
-                    $table .=  '<th class="'.$prefixid.'checkbox_dummy_field"></th>';
+                    $table .=  '<'.($this->getSemantic() ? 'th' : 'div'.($this->getStyling() ? ' style="display:table-cell;"' : '')).' class="'.$prefixid.'checkbox_dummy_field"></'.($this->getSemantic() ? 'th' : 'div').'>';
                 }
                 foreach ($this->getHeader() as $key=>$footer) {
-                    $table .= '<th class="'.$prefixid.'th_'.$key.'">'.$footer.'</th>';
+                    $table .= '<'.($this->getSemantic() ? 'th' : 'div'.($this->getStyling() ? ' style="display:table-cell;"' : '')).' class="'.$prefixid.'th_'.$key.'">'.$footer.'</'.($this->getSemantic() ? 'th' : 'div').'>';
                 }
-                $table .= '</tr></tfoot>';
+                $table .= '</'.($this->getSemantic() ? 'tr' : 'div').'></'.($this->getSemantic() ? 'tfoot' : 'div').'>';
             }
         }
-        $table .= '</table>';
+        $table .= '</'.($this->getSemantic() ? 'table' : 'div').'>';
         return $table;
     }
     
     
-    private function prepare($string, int $colnum, int $rownum = 0): string
+    private function prepare($string, int $colnum, int $rownum = 0, bool $footer = false): string
     {
         $string = strval($string);
         #Determine type
@@ -290,14 +326,18 @@ class Api
         $prefixid = $this->getIdPrefix();
         #Set ID for the element
         if (in_array($string_type, ['html','date','time','datetime','seconds','bytes','price','checkbox','email','url','textarea','text','tel','password','img','file','color'])) {
-            ${$string_type.'id'} = $prefixid.$string_type.'_'.$this->getCounter($string_type);
+            if ($footer) {
+                ${$string_type.'id'} = $prefixid.'footer_'.$colnum;
+            } else {
+                ${$string_type.'id'} = $prefixid.$string_type.'_'.$this->getCounter($string_type);
+            }
         }
         if ($this->getSanitize() && $string_type != 'html') {
             $string = strip_tags($string);
         }
         switch ($string_type) {
             case 'date':
-                if ($this->getEditable()) {
+                if ($this->getEditable() && $footer === false) {
                     if (self::$SandClock) {
                         $string = (new \SandClock\Api)->setFormat('Y-m-d')->format($string);
                     }
@@ -309,7 +349,7 @@ class Api
                 }
                 break;
             case 'time':
-                if ($this->getEditable()) {
+                if ($this->getEditable() && $footer === false) {
                     if (self::$SandClock) {
                         $string = (new \SandClock\Api)->setFormat('H:i:s')->format($string);
                     }
@@ -321,7 +361,7 @@ class Api
                 }
                 break;
             case 'datetime':
-                if ($this->getEditable()) {
+                if ($this->getEditable() && $footer === false) {
                     if (self::$SandClock) {
                         $string = (new \SandClock\Api)->setFormat('Y-m-d\TH:i:s')->format($string);
                     }
@@ -334,7 +374,7 @@ class Api
                 break;
             case 'seconds':
             case 'bytes':
-                if ($this->getEditable()) {
+                if ($this->getEditable() && $footer === false) {
                     $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixid.'_'.$string_type.'" type="number" step="1" min="0" inputmode="decimal" value="'.$string.'">';
                 } else {
                     if ($string_type === 'bytes') {
@@ -350,8 +390,23 @@ class Api
                 break;
             case 'price':
                 #Expects integer string, where last 2 numbers are the "fractions" (like cents)
-                $string = substr_replace(strval(intval($string)), '.', -2, 0);
-                if ($this->getEditable()) {
+                if ($this->getCurrencyFraction()) {
+                    $string = substr_replace(strval(intval($string)), '.', -$this->getCurrencyPrecision(), 0);
+                    if (substr($string, 0, 1) === '.') {
+                        $string = '0'.$string;
+                    }
+                } else {
+                   $string = strval(number_format(floatval($string), $this->getCurrencyPrecision()));
+                }
+                if ((!$this->getEditable() || $footer === true) && !empty($this->getCurrencyCode())) {
+                    #If code ends with space - palce it before the value
+                    if (substr($this->getCurrencyCode(), -1) === ' ') {
+                        $string = $this->getCurrencyCode().$string;
+                    } else {
+                        $string = $string.' '.$this->getCurrencyCode();
+                    }
+                }
+                if ($this->getEditable() && $footer === false) {
                     $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixid.'_'.$string_type.'" type="number" step="0.01" min="0.00" inputmode="decimal" value="'.$string.'">';
                 }
                 break;
@@ -368,7 +423,7 @@ class Api
                         $checkboxstatus = '';
                     }
                 }
-                $string = '<input type="checkbox" id="'.${$string_type.'id'}.'" class="'.$prefixid.'_checkbox"'.$checkboxstatus.($this->getEditable() ? '' : ' disabled').'>';
+                $string = '<input type="checkbox" id="'.${$string_type.'id'}.'" class="'.$prefixid.'_checkbox"'.$checkboxstatus.($this->getEditable() && $footer === false ? '' : ' disabled').'>';
                 break;
             case 'email':
             case 'url':
@@ -377,7 +432,7 @@ class Api
                     if ($string_type === 'url' && self::$PrettyURL) {
                         $string = (new \PrettyURL\PrettyURL)->pretty($string, $this->getSanitize());
                     }
-                    if ($this->getEditable()) {
+                    if ($this->getEditable() && $footer === false) {
                         $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixid.'_'.$string_type.'" type="'.$string_type.'" inputmode="'.$string_type.'" value="'.$string.'">';
                     } else {
                         $string = '<a id="'.${$string_type.'id'}.'" class="'.$prefixid.'_'.$string_type.'" href="'.($string_type === 'url' ? '' : 'mailto:').$string.'"'.($string_type === 'url' ? ' target="_blank"' : '').'>'.$string.'</a>';
@@ -388,12 +443,12 @@ class Api
                 break;
             case 'html':
                 #If editable, treat as textarea
-                if (!$this->getEditable()) {
+                if (!$this->getEditable() || $footer === true) {
                     $string = htmlentities($string, ENT_QUOTES | ENT_HTML5 | ENT_DISALLOWED);
                     break;
                 }
             case 'textarea':
-                if ($this->getEditable()) {
+                if ($this->getEditable() && $footer === false) {
                     $string = '<textarea cols="'.$this->getTextareaSetting('cols').'" rows="'.$this->getTextareaSetting('rows').'" minlength="'.$this->getTextareaSetting('minlength').'" maxlength="'.$this->getTextareaSetting('maxlength').'" spellcheck="true" class="'.$prefixid.'_'.$string_type.'">'.$string.'</textarea>';
                 }
                 break;
@@ -404,27 +459,27 @@ class Api
                 if ($string_type === 'password') {
                     $string = '';
                 }
-                if ($this->getEditable()) {
+                if ($this->getEditable() && $footer === false) {
                     $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixid.'_'.$string_type.'" type="'.$string_type.'" inputmode="'.$string_type.'" value="'.$string.'"'.($string_type === 'password' ? 'pattern="'.self::$PasswordPattern.'"' : '').'>';
                 }
                 break;
             case 'img':
                 #If editable, treat as input="file"
-                if (!$this->getEditable()) {
+                if (!$this->getEditable() || $footer === true) {
                     #alt is set as "" to make some browsers consider images as non-essential. If an image needs to be considered as essential it's recommended not to show it through this library. Alternatively you can update it through JavaScript or other programmatic methods.
                     $string = '<img src="'.$string.'" alt="" decoding="async" class="'.$prefixid.'_'.$string_type.'">';
                     break;
                 }
             case 'file':
-                $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixid.'_'.$string_type.'" type="file"'.($this->getEditable() ? '' : ' disabled').($this->getMultipleFiles() ? ' multiple' : '').'>';
+                $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixid.'_'.$string_type.'" type="file"'.($this->getEditable() && $footer === false ? '' : ' disabled').($this->getMultipleFiles() ? ' multiple' : '').'>';
                 break;
             case 'color':
                 #Attempting to sanitize the value provided allowing only 0-9 and a-f characters and padding from left to 6 characters
-                $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixid.'_color" type="color" value="#'.str_pad(substr(preg_replace(self::$ColorHexRegex, '', $string), 0, 6), 6, '0', STR_PAD_LEFT).'"'.($this->getEditable() ? '' : ' disabled').'>';
+                $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixid.'_color" type="color" value="#'.str_pad(substr(preg_replace(self::$ColorHexRegex, '', $string), 0, 6), 6, '0', STR_PAD_LEFT).'"'.($this->getEditable() && $footer === false ? '' : ' disabled').'>';
                 break;
         }
-        if (!$this->getEditable() && in_array($string_type, ['date','time','datetime','seconds','bytes','price','text','tel','password','textarea'])) {
-            $string = '<span id="'.${$string_type.'id'}.'" class="'.$prefixid.'_'.$string_type.'" type="'.$string_type.'">'.$string.'</span>';
+        if ((!$this->getEditable() || $footer === true) && in_array($string_type, ['date','time','datetime','seconds','bytes','price','text','tel','password','textarea'])) {
+            $string = '<span id="'.${$string_type.'id'}.'" class="'.$prefixid.'_'.$string_type.'">'.$string.'</span>';
         }
         return $string;
     }
@@ -548,6 +603,17 @@ class Api
         return $this;
     }
     
+    public function getStyling(): bool
+    {
+        return $this->styling;
+    }
+    
+    public function setStyling(bool $styling): self
+    {
+        $this->styling = $styling;
+        return $this;
+    }
+    
     public function getEditable(): bool
     {
         return $this->editable;
@@ -625,6 +691,39 @@ class Api
     public function setDateFormat(string $dateformat): self
     {
         $this->dateformat = $dateformat;
+        return $this;
+    }
+    
+    public function getCurrencyCode(): string
+    {
+        return $this->currencyCode;
+    }
+    
+    public function setCurrencyCode(string $currencyCode): self
+    {
+        $this->currencyCode = $currencyCode;
+        return $this;
+    }
+    
+    public function getCurrencyPrecision(): int
+    {
+        return $this->currencyPrecision;
+    }
+    
+    public function setCurrencyPrecision(int $currencyPrecision): self
+    {
+        $this->currencyPrecision = $currencyPrecision;
+        return $this;
+    }
+    
+    public function getCurrencyFraction(): bool
+    {
+        return $this->currencyFraction;
+    }
+    
+    public function setCurrencyFraction(bool $currencyFraction): self
+    {
+        $this->currencyFraction = $currencyFraction;
         return $this;
     }
     
