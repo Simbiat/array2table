@@ -10,7 +10,7 @@ class Api
     private $styling = false;
     #Generate with first column being a checkbox with unique ID if true. Works for multi-arrays only
     private $checkbox = false;
-    #Generate with checkbox checked
+    #Generate with first column checkbox checked
     private $checked = false;
     #Whether to attempt to strip tags and encode HTML entities, if not enforcing HTML
     private $sanitize = true;
@@ -18,23 +18,23 @@ class Api
     private $multiflag = false;
     #Flag to allow edit of the editable fields. Disabled by default
     private $editable = false;
-    #Optional caption for semantic tables
+    #Optional caption for tables
     private $caption = '';
-    #Optional header to be used. Used only for semantic tables
+    #Optional header to be used
     private $header = [];
     #Option to repeat header every x lines
     private $repeatheader = 0;
-    #Optional footer to be used. Used only for semantic tables
+    #Optional footer to be used
     private $footer = [];
     #Use header text in footer. Disabled by default
     private $footerHeader = false;
-    #Optional column groups. Used only for semantic tables
+    #Optional column groups
     private $colgroup = [];
     #Temporary count of groups for validation purpose
     private $groupscount = 0;
     #Optional types, that allow additional formatting of text
     private $types = [];
-    #Optional prefix for elements' IDs (or classes in some cases)
+    #Optional prefix for elements' IDs and some of the classes
     private $idprefix = 'simbiat';
     #Option to allow multiple files upload for file fields. Disabled by default
     private $multiplefiles = false;
@@ -120,8 +120,13 @@ class Api
             throw new \UnexpectedValueException('Footer was sent, but has different length than array.');
         }
         #Check if types have same length
-        if (!empty($this->getTypes()) && count($this->getTypes()) != $length) {
-            throw new \UnexpectedValueException('Types were sent, but have different length than array.');
+        if (empty($this->getTypes())) {
+            #Filling the types' array with 'string' value. Using 'string' so that all elements would be converted to regular <span> elements as a safety precaution
+            $this->setTypes(array_fill(0, $length, 'string'));
+        } else {
+            if (count($this->getTypes()) != $length) {
+                throw new \UnexpectedValueException('Types were sent, but have different length than array.');
+            }
         }
         #Check if colgroups has same length
         if ($this->groupscount != 0 && $this->groupscount != $length) {
@@ -158,7 +163,7 @@ class Api
                 #Since we are parsing the array either way, convert assotiative array to regular one for consistency
                 $tempTypes[$column] = array_values($typelist);
                 if ($this->multiflag) {
-                    if (count($typelist) !== count($array[$column])) {
+                    if (count($typelist) !== count($array)) {
                         throw new \UnexpectedValueException('Multi-row types\' column '.$column.' have different length than array.');
                     }
                 } else {
@@ -242,10 +247,10 @@ class Api
             $table .= '<'.($this->getSemantic() ? 'thead' : 'div'.($this->getStyling() ? ' style="display:table-header-group;font-weight:bold;text-align:center;"' : '')).' class="'.$prefixid.'thead"><'.($this->getSemantic() ? 'tr' : 'div'.($this->getStyling() ? ' style="display:table-row;"' : '')).'>';
             #Add checkbox column (empty for header)
             if ($this->getCheckbox()) {
-                   $table .=  '<'.($this->getSemantic() ? 'th' : 'div'.($this->getStyling() ? ' style="display:table-cell;"' : '')).' class="'.$prefixid.'checkbox_dummy_field"></'.($this->getSemantic() ? 'th' : 'div').'>';
+                   $table .=  '<'.($this->getSemantic() ? 'th' : 'div'.($this->getStyling() ? ' style="display:table-cell;padding:1px;vertical-align: middle;"' : '')).' class="'.$prefixid.'checkbox_dummy_field"></'.($this->getSemantic() ? 'th' : 'div').'>';
             }
             foreach ($this->getHeader() as $key=>$header) {
-                $table .= '<'.($this->getSemantic() ? 'th' : 'div'.($this->getStyling() ? ' style="display:table-cell;"' : '')).' class="'.$prefixid.'th_'.$key.'">'.$header.'</'.($this->getSemantic() ? 'th' : 'div').'>';
+                $table .= '<'.($this->getSemantic() ? 'th' : 'div'.($this->getStyling() ? ' style="display:table-cell;padding:1px;vertical-align: middle;"' : '')).' class="'.$prefixid.'th_'.$key.'">'.$header.'</'.($this->getSemantic() ? 'th' : 'div').'>';
             }
             $table .= '</'.($this->getSemantic() ? 'tr' : 'div').'></'.($this->getSemantic() ? 'thead' : 'div').'>';
         }
@@ -257,21 +262,21 @@ class Api
                     $table .= '<'.($this->getSemantic() ? 'tr' : 'div'.($this->getStyling() ? ' style="display:table-row;"' : '')).'>';
                     #Add checkbox column (empty for header)
                     if ($this->getCheckbox()) {
-                           $table .=  '<'.($this->getSemantic() ? 'th' : 'div'.($this->getStyling() ? ' style="display:table-cell;"' : '')).' class="'.$prefixid.'checkbox_dummy_field"></'.($this->getSemantic() ? 'th' : 'div').'>';
+                           $table .=  '<'.($this->getSemantic() ? 'th' : 'div'.($this->getStyling() ? ' style="display:table-cell;padding:1px;vertical-align: middle;"' : '')).' class="'.$prefixid.'checkbox_dummy_field"></'.($this->getSemantic() ? 'th' : 'div').'>';
                     }
                     foreach ($this->getHeader() as $key=>$header) {
-                        $table .= '<'.($this->getSemantic() ? 'th' : 'div'.($this->getStyling() ? ' style="display:table-cell;"' : '')).' class="'.$prefixid.'th_'.$key.'">'.$header.'</'.($this->getSemantic() ? 'th' : 'div').'>';
+                        $table .= '<'.($this->getSemantic() ? 'th' : 'div'.($this->getStyling() ? ' style="display:table-cell;padding:1px;vertical-align: middle;"' : '')).' class="'.$prefixid.'th_'.$key.'">'.$header.'</'.($this->getSemantic() ? 'th' : 'div').'>';
                     }
                     $table .= '</'.($this->getSemantic() ? 'tr' : 'div').'>';
                 }
                 $table .= '<'.($this->getSemantic() ? 'tr' : 'div'.($this->getStyling() ? ' style="display:table-row;"' : '')).' id="'.$prefixid.'tr_'.$row.'">';
                 #Add checkbox column
                 if ($this->getCheckbox()) {
-                    $table .=  '<'.($this->getSemantic() ? 'td' : 'div'.($this->getStyling() ? ' style="display:table-cell;"' : '')).' class="'.$prefixid.'checkbox_field" id="'.$prefixid.'td_checkbox_'.$row.'"><input type="checkbox" id="'.$prefixid.'checkbox_'.$row.'"'.($this->getChecked() ? ' checked' : '').'></'.($this->getSemantic() ? 'td' : 'div').'>';
+                    $table .=  '<'.($this->getSemantic() ? 'td' : 'div'.($this->getStyling() ? ' style="display:table-cell;padding:1px;vertical-align: middle;"' : '')).' class="'.$prefixid.'checkbox_field" id="'.$prefixid.'td_checkbox_'.$row.'"><input type="checkbox" id="'.$prefixid.'checkbox_'.$row.'"'.($this->getChecked() ? ' checked' : '').'></'.($this->getSemantic() ? 'td' : 'div').'>';
                 }
                 $subarray = array_values($subarray);
                 foreach ($subarray as $column=>$cell) {
-                    $table .= '<'.($this->getSemantic() ? 'td' : 'div'.($this->getStyling() ? ' style="display:table-cell;"' : '')).' id="'.$prefixid.'td_'.$row.'_'.$column.'">'.$this->prepare($cell, $column, $row).'</'.($this->getSemantic() ? 'td' : 'div').'>';
+                    $table .= '<'.($this->getSemantic() ? 'td' : 'div'.($this->getStyling() ? ' style="display:table-cell;padding:1px;vertical-align: middle;"' : '')).' id="'.$prefixid.'td_'.$row.'_'.$column.'">'.$this->prepare($cell, $column, $row).'</'.($this->getSemantic() ? 'td' : 'div').'>';
                 }
                 $table .= '</'.($this->getSemantic() ? 'tr' : 'div').'>';
             }
@@ -279,7 +284,7 @@ class Api
             $table .= '<'.($this->getSemantic() ? 'tr' : 'div'.($this->getStyling() ? ' style="display:table-row;"' : '')).' id="'.$prefixid.'tr_0">';
             $array = array_values($array);
             foreach ($array as $column=>$cell) {
-                $table .= '<'.($this->getSemantic() ? 'td' : 'div'.($this->getStyling() ? ' style="display:table-cell;"' : '')).' id="'.$prefixid.'td_0_'.$column.'">'.$this->prepare($cell, $column).'</'.($this->getSemantic() ? 'td' : 'div').'>';
+                $table .= '<'.($this->getSemantic() ? 'td' : 'div'.($this->getStyling() ? ' style="display:table-cell;padding:1px;vertical-align: middle;"' : '')).' id="'.$prefixid.'td_0_'.$column.'">'.$this->prepare($cell, $column).'</'.($this->getSemantic() ? 'td' : 'div').'>';
             }
             $table .= '</'.($this->getSemantic() ? 'tr' : 'div').'>';
         }
@@ -289,10 +294,10 @@ class Api
             $table .= '<'.($this->getSemantic() ? 'tfoot' : 'div'.($this->getStyling() ? ' style="display:table-footer-group;font-weight:bold;text-align:center;"' : '')).' id="'.$prefixid.'tfoot"><'.($this->getSemantic() ? 'tr' : 'div'.($this->getStyling() ? ' style="display:table-row;"' : '')).'>';
             #Add checkbox column (empty for footer)
             if ($this->getCheckbox()) {
-                    $table .=  '<'.($this->getSemantic() ? 'th' : 'div'.($this->getStyling() ? ' style="display:table-cell;"' : '')).' class="'.$prefixid.'checkbox_dummy_field"></'.($this->getSemantic() ? 'th' : 'div').'>';
+                    $table .=  '<'.($this->getSemantic() ? 'th' : 'div'.($this->getStyling() ? ' style="display:table-cell;padding:1px;vertical-align: middle;"' : '')).' class="'.$prefixid.'checkbox_dummy_field"></'.($this->getSemantic() ? 'th' : 'div').'>';
             }
             foreach ($this->getFooter() as $key=>$footer) {
-                $table .= '<'.($this->getSemantic() ? 'th' : 'div'.($this->getStyling() ? ' style="display:table-cell;"' : '')).' class="'.$prefixid.'th_'.$key.'">'.$footer.'</'.($this->getSemantic() ? 'th' : 'div').'>';
+                $table .= '<'.($this->getSemantic() ? 'th' : 'div'.($this->getStyling() ? ' style="display:table-cell;padding:1px;vertical-align: middle;"' : '')).' class="'.$prefixid.'th_'.$key.'">'.$footer.'</'.($this->getSemantic() ? 'th' : 'div').'>';
             }
             $table .= '</'.($this->getSemantic() ? 'tr' : 'div').'></'.($this->getSemantic() ? 'tfoot' : 'div').'>';
         } else {
@@ -301,10 +306,10 @@ class Api
                 $table .= '<'.($this->getSemantic() ? 'tfoot' : 'div'.($this->getStyling() ? ' style="display:table-footer-group;font-weight:bold;text-align:center;"' : '')).' id="'.$prefixid.'tfoot"><'.($this->getSemantic() ? 'tr' : 'div'.($this->getStyling() ? ' style="display:table-row;"' : '')).'>';
                 #Add checkbox column (empty for footer)
                 if ($this->getCheckbox()) {
-                    $table .=  '<'.($this->getSemantic() ? 'th' : 'div'.($this->getStyling() ? ' style="display:table-cell;"' : '')).' class="'.$prefixid.'checkbox_dummy_field"></'.($this->getSemantic() ? 'th' : 'div').'>';
+                    $table .=  '<'.($this->getSemantic() ? 'th' : 'div'.($this->getStyling() ? ' style="display:table-cell;padding:1px;vertical-align: middle;"' : '')).' class="'.$prefixid.'checkbox_dummy_field"></'.($this->getSemantic() ? 'th' : 'div').'>';
                 }
                 foreach ($this->getHeader() as $key=>$footer) {
-                    $table .= '<'.($this->getSemantic() ? 'th' : 'div'.($this->getStyling() ? ' style="display:table-cell;"' : '')).' class="'.$prefixid.'th_'.$key.'">'.$footer.'</'.($this->getSemantic() ? 'th' : 'div').'>';
+                    $table .= '<'.($this->getSemantic() ? 'th' : 'div'.($this->getStyling() ? ' style="display:table-cell;padding:1px;vertical-align: middle;"' : '')).' class="'.$prefixid.'th_'.$key.'">'.$footer.'</'.($this->getSemantic() ? 'th' : 'div').'>';
                 }
                 $table .= '</'.($this->getSemantic() ? 'tr' : 'div').'></'.($this->getSemantic() ? 'tfoot' : 'div').'>';
             }
@@ -396,7 +401,7 @@ class Api
                         $string = '0'.$string;
                     }
                 } else {
-                   $string = strval(number_format(floatval($string), $this->getCurrencyPrecision()));
+                    $string = strval(number_format(floatval($string), $this->getCurrencyPrecision(), '.', ''));
                 }
                 if ((!$this->getEditable() || $footer === true) && !empty($this->getCurrencyCode())) {
                     #If code ends with space - palce it before the value
@@ -423,7 +428,7 @@ class Api
                         $checkboxstatus = '';
                     }
                 }
-                $string = '<input type="checkbox" id="'.${$string_type.'id'}.'" class="'.$prefixid.'_checkbox"'.$checkboxstatus.($this->getEditable() && $footer === false ? '' : ' disabled').'>';
+                $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixid.'_checkbox" type="checkbox"'.$checkboxstatus.($this->getEditable() && $footer === false ? '' : ' disabled').'>';
                 break;
             case 'email':
             case 'url':
@@ -449,7 +454,7 @@ class Api
                 }
             case 'textarea':
                 if ($this->getEditable() && $footer === false) {
-                    $string = '<textarea cols="'.$this->getTextareaSetting('cols').'" rows="'.$this->getTextareaSetting('rows').'" minlength="'.$this->getTextareaSetting('minlength').'" maxlength="'.$this->getTextareaSetting('maxlength').'" spellcheck="true" class="'.$prefixid.'_'.$string_type.'">'.$string.'</textarea>';
+                    $string = '<textarea id="'.${$string_type.'id'}.'" class="'.$prefixid.'_'.$string_type.'" cols="'.$this->getTextareaSetting('cols').'" rows="'.$this->getTextareaSetting('rows').'" minlength="'.$this->getTextareaSetting('minlength').'" maxlength="'.$this->getTextareaSetting('maxlength').'" spellcheck="true">'.$string.'</textarea>';
                 }
                 break;
             case 'text':
@@ -475,7 +480,7 @@ class Api
                 break;
             case 'color':
                 #Attempting to sanitize the value provided allowing only 0-9 and a-f characters and padding from left to 6 characters
-                $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixid.'_color" type="color" value="#'.str_pad(substr(preg_replace(self::$ColorHexRegex, '', $string), 0, 6), 6, '0', STR_PAD_LEFT).'"'.($this->getEditable() && $footer === false ? '' : ' disabled').'>';
+                $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixid.'_color" type="color" value="#'.str_pad(substr(preg_replace(self::$ColorHexRegex, '', $string), 0, 6), 6, '0', STR_PAD_LEFT).'"'.($this->getEditable() && $footer === false ? '' : ' disabled').' pattern="^#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$">';
                 break;
         }
         if ((!$this->getEditable() || $footer === true) && in_array($string_type, ['date','time','datetime','seconds','bytes','price','text','tel','password','textarea'])) {
