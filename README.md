@@ -4,7 +4,7 @@ This library is used for creating HTML tables using data provided to it in an ar
 - You are presenting a lot of homogeneous data from your database
 - You are creating some relatively simple form (like user settings) and do not want that much customization for it
 
-Yes, this library can be used for creating forms, that you will be able to process further, once they are submitted. And the most unique feature here is that form elements will not be just text-fields: library supports checkboxes, date/time fields, colors, files, .etc. Each elements will be created with the minimum required attributes, with automatically generated IDs and classes (for CSS customization or JavaScript interactivity, if required).
+Yes, this library can be used for creating forms, that you will be able to process further, once they are submitted. And the most unique feature here is that form elements will not be just text-fields: library supports checkboxes, date/time fields, colors, files, .etc. Each element will be created with the minimum required attributes, with automatically generated IDs and classes (for CSS customization or JavaScript interactivity, if required).
 
 - [Data Types](#data-types)
 - [Settings](#settings)
@@ -77,15 +77,15 @@ Here's what the code does:
 1. Create new object with `(new \array2table\Api)`. Obviously load the library before that.
 2. Optionally set a `prefix` for elements' IDs and Classes with `setIdPrefix('prefix')`. Very useful, in case you will have multiple tables like that on one page, like `sample.html` does.
 3. Optionally set `caption` for the table with `setCaption('caption')`. If this is set a `<caption></caption>` will be added to the table if it's semantic or respective `<div></div>` if it's not. Basically, this is a name of the table.
-4. In case of non-semantic tables we have `setSemantic(false)`. This forces use of `<div></div>` elements instead if regular (semantic) table elements (table, td, tr, th, .etc). When creating actual tables it is recommended to use semantic approach (thus default is `true`), but in some cases you may want to have `<div></div>`.
+4. In case of non-semantic tables we have `setSemantic(false)`. This forces use of `<div></div>` elements instead if regular (semantic) table elements (table, td, tr, th, .etc). When creating actual tables, it is recommended to use semantic approach (thus default is `true`), but in some cases you may want to have `<div></div>`.
 5. Optionally enable basic styling for `<div></div>` elements for non-semantic approach with `setStyling(true)`. This will add inline `style` attributes to make non-semantic table look more like its semantic counterpart. Styling is based on WebKit stylesheet at the time of writing.
 6. Optionally set `footer` with `setFooter(['','',''])`. If this is set `<footer></footer>` will be added to the table if it's semantic or respective `<div></div>` if it's not. This is a row that will appear at the bottom of the table. If set, its length will be checked against the number of columns the data have and if different - throw an exception. `footer` can be used to repeate `header` with `setFooterHeader(true)`. In case of `sample.html` we also use `#func_sum` to calculate total (sum) of the values in respective column.
 7. Optionally set currency for `currency` values with `setCurrencyCode('USD ')`. Adding space at the and of the value will place the currency before the values. Default is `''`, that empty string.
-8. Optionally set `precission` for `currency` values with `setCurrencyPrecision(2)`. This determines number of digits after dot. Default is `2`.
+8. Optionally set `precision` for `currency` values with `setCurrencyPrecision(2)`. This determines number of digits after dot. Default is `2`.
 9. Optionally set initial format used by `currency` values with `setCurrencyFraction(true)`. If `true` converter will expect values to be "fractions", like cents for USD, thus will consider the last 2 digits of a value as cents and put them after the dot. If `false` - will expect a float and/or convert to it.
 10. Optionally add checkbox for each lie with `setCheckbox(true)`. This may be useful when you want to allow user to remove some entries, for example. Set is as checked with `setChecked(true)`.
 11. Optionally make the values of the table editable with `setEditable(true)`. This will replace values with appropriate `<input>` elements.
-12. Optionally adjust  size of `<textarea>` elements with `setTextareaSetting('cols', '20')->setTextareaSetting('rows', '5')`.
+12. Optionally adjust size of `<textarea>` elements with `setTextareaSetting('cols', '20')->setTextareaSetting('rows', '5')`.
 13. Set values types with `setTypes(['number','string',['text','password','tel','date', 'time', 'datetime', 'seconds', 'bytes', 'price', 'checkbox', 'email', 'url', 'html', 'img', 'color']])`. In the example 2 first columns (array elements) have one type for all values in them. Both of them are not, actually, a supported type from the list, thus they will turn into regular `<span></span>` elements. The 3rd column uses an array of types with separate type for each row. It's not required to have different types for each: this is done only for the sample purpose to showcase all of currently supported types. It is required to have the same number of types as you have actual data rows or an exception will be thrown.
 14. Actually generate the table with
 `generate(
@@ -106,7 +106,7 @@ Here's what the code does:
             ['1','Avatar','https://media.kitsu.io/users/avatars/41172/large.jpg'],
             ['1','Favorite color','006E72'],
     ]`
-Each "inner" array in "outer" array represents a row, while each element in "inner" arrays - respective column. In sample 1st row is using an assotiative array for optional header value (creates `<header></header>`). Alternatively `setHeader([])` can be used to the same effect.
+Each "inner" array in "outer" array represents a row, while each element in "inner" arrays - respective column. In sample 1st row is using an associative array for optional header value (creates `<header></header>`). Alternatively `setHeader([])` can be used to the same effect.
 
 # Data types
 <table>
@@ -143,7 +143,7 @@ Each "inner" array in "outer" array represents a row, while each element in "inn
 	<tr>
 		<td>price</td>
 		<td><code>&lt;input id="element_count" class="element_class" type="number" step="0.01" min="0.00" inputmode="decimal" value="value"&gt;</code></td>
-		<td>Converts provided value into a float with an optional currency sign represnting an amount of that currency. If editable, will attempt to force decimal virtual keyboard, depending on browser support<td>
+		<td>Converts provided value into a float with an optional currency sign representing an amount of that currency. If editable, will attempt to force decimal virtual keyboard, depending on browser support<td>
 	</tr>
 	<tr>
 		<td>checkbox</td>
@@ -173,7 +173,7 @@ Each "inner" array in "outer" array represents a row, while each element in "inn
 	<tr>
 		<td>text</td>
 		<td><code>&lt;input id="element_count" class="element_class" type="text" inputmode="text" value="value"&gt;</code></td>
-		<td>Returns regular text or repsctive <code><input></code> element.<td>
+		<td>Returns regular text or respective <code><input></code> element.<td>
 	</tr>
 	<tr>
 		<td>tel</td>
@@ -212,7 +212,7 @@ Each "inner" array in "outer" array represents a row, while each element in "inn
 	<tr>
 		<td><code>setSemantic(bool $semantic)</code></td>
 		<td><code>true</code></td>
-    <td>Generate <code>&lt;table&gt;</code> (semantic) if true or <code>&lt;div&gt;</code> (non-semantic) if false.</td>
+		<td>Generate <code>&lt;table&gt;</code> (semantic) if true or <code>&lt;div&gt;</code> (non-semantic) if false.</td>
 	</tr>
 	<tr>
 		<td><code>setStyling(bool $styling)</code></td>
@@ -232,7 +232,7 @@ Each "inner" array in "outer" array represents a row, while each element in "inn
 	<tr>
 		<td><code>setSanitize(bool $sanitize)</code></td>
 		<td><code>true</code></td>
-    <td>Attempt to strip tags and encode HTML entities, unless <code>html</code> data type.</td>
+		<td>Attempt to strip tags and encode HTML entities, unless <code>html</code> data type.</td>
 	</tr>
 	<tr>
 		<td><code>setEditable(bool $editable)</code></td>
@@ -247,7 +247,7 @@ Each "inner" array in "outer" array represents a row, while each element in "inn
 	<tr>
 		<td><code>setHeader(array $header)</code></td>
 		<td><code>[]</code></td>
-		<td>Optional header for tables. Expects array with same length as number of columns in data provided. Alternatively will attempt to use keys from first row, if it's an assotiative array.</td>
+		<td>Optional header for tables. Expects array with same length as number of columns in data provided. Alternatively will attempt to use keys from first row, if it's an associative array.</td>
 	</tr>
 	<tr>
 		<td><code>setRepeatHeader(int $repeatheader)</code></td>
@@ -267,7 +267,7 @@ Each "inner" array in "outer" array represents a row, while each element in "inn
 	<tr>
 		<td><code>setColGroup(array $colgroup)</code></td>
 		<td><code>[]</code></td>
-    <td>Setter for optional <code>colgroup</code> definition, which allows gouping of columns through HTML classes. Expect array like <code>[['span'=>2,'class'=>'col_class','style'=>'col_style'],[...],...,[...]]</code>. <code>'span'</code> expect a numeric value identifying number of columns in a group. <code>'class'</code> expects a class that will be additionally applied to the group. <code>'style'</code> expects a CSS style string that will be additionally applied to group.</td>
+		<td>Setter for optional <code>colgroup</code> definition, which allows grouping of columns through HTML classes. Expect array like <code>[['span'=>2,'class'=>'col_class','style'=>'col_style'],[...],...,[...]]</code>. <code>'span'</code> expect a numeric value identifying number of columns in a group. <code>'class'</code> expects a class that will be additionally applied to the group. <code>'style'</code> expects a CSS style string that will be additionally applied to group.</td>
 	</tr>
 	<tr>
 		<td><code>setTypes(array $types)</code></td>
@@ -287,7 +287,7 @@ Each "inner" array in "outer" array represents a row, while each element in "inn
 	<tr>
 		<td><code>setDateFormat(string $dateformat)</code></td>
 		<td><code>'Y-m-d'</code></td>
-    <td>Date format to use with <code>Simbiat\SandClock</code> library for <code>date</code> type.</td>
+		<td>Date format to use with <code>Simbiat\SandClock</code> library for <code>date</code> type.</td>
 	</tr>
 	<tr>
 		<td><code>setTimeFormat(string $timeformat)</code></td>
@@ -302,31 +302,31 @@ Each "inner" array in "outer" array represents a row, while each element in "inn
 	<tr>
 		<td><code>setLanguage(string $language)</code></td>
 		<td><code>'en'</code></td>
-    <td>Language to use with <code>Simbiat\SandClock</code> library for <code>seconds</code> type.</td>
+		<td>Language to use with <code>Simbiat\SandClock</code> library for <code>seconds</code> type.</td>
 	</tr>
 	<tr>
 		<td><code>setTextareaSetting(string $setting, string $value)</code></td>
-    <td><code>[
+		<td><code>[
         'rows'=>'20',
         'cols'=>'2',
         'minlength'=>'',
         'maxlength'=>'',
     ]</code></td>
-    <td>Customization options for <code>textarea</code> elements.</td>
+		<td>Customization options for <code>textarea</code> elements.</td>
 	</tr>
 	<tr>
 		<td><code>setCurrencyCode(string $currencyCode)</code></td>
 		<td><code>''</code></td>
-    <td>Set an optional currency code (or symbol) for <code>price</code> type. Add space at the end to put it beofre the value.</td>
+		<td>Set an optional currency code (or symbol) for <code>price</code> type. Add space at the end to put it before the value.</td>
 	</tr>
 	<tr>
 		<td><code>setCurrencyPrecision(int $currencyPrecision)</code></td>
 		<td><code>2</code></td>
-    <td>Set precission of floating point (number of digits after the dot) for <code>price</code> type.</td>
+		<td>Set precision of floating point (number of digits after the dot) for <code>price</code> type.</td>
 	</tr>
 	<tr>
 		<td><code>setCurrencyFraction(bool $currencyFraction)</code></td>
 		<td><code>true</code></td>
-    <td>Set to <code>false</code> to treat values for <code>price</code> type as floats. Treat values as fractions (like cents in case of USD) by default.</td>
+		<td>Set to <code>false</code> to treat values for <code>price</code> type as floats. Treat values as fractions (like cents in case of USD) by default.</td>
 	</tr>
 </table>
