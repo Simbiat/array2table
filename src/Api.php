@@ -5,66 +5,66 @@ namespace array2table;
 class Api
 {
     #Generate <table> if true or <div> if false
-    private $semantic = true;
+    private bool $semantic = true;
     #Force basic inline styling for <div> variant. Custom styling is recommended
-    private $styling = false;
+    private bool $styling = false;
     #Generate with first column being a checkbox with unique ID if true. Works for multi-arrays only
-    private $checkbox = false;
+    private bool $checkbox = false;
     #Generate with first column checkbox checked
-    private $checked = false;
+    private bool $checked = false;
     #Whether to attempt to strip tags and encode HTML entities, if not enforcing HTML
-    private $sanitize = true;
+    private bool $sanitize = true;
     #Flag for multidimensional arrays. Using for performance optimization
-    private $multiflag = false;
+    private bool $multiflag = false;
     #Flag to allow edit of the editable fields. Disabled by default
-    private $editable = false;
+    private bool $editable = false;
     #Optional caption for tables
-    private $caption = '';
+    private bool $caption = '';
     #Optional header to be used
-    private $header = [];
+    private array $header = [];
     #Option to repeat header every x lines
-    private $repeatheader = 0;
+    private int $repeatheader = 0;
     #Optional footer to be used
-    private $footer = [];
+    private array $footer = [];
     #Use header text in footer. Disabled by default
-    private $footerHeader = false;
+    private bool $footerHeader = false;
     #Optional column groups
-    private $colgroup = [];
+    private array $colgroup = [];
     #Temporary count of groups for validation purpose
-    private $groupscount = 0;
+    private bool $groupscount = 0;
     #Optional types, that allow additional formatting of text
-    private $types = [];
+    private array $types = [];
     #Optional prefix for elements' IDs and some of the classes
-    private $idprefix = 'simbiat';
+    private string $idprefix = 'simbiat';
     #Option to allow multiple files upload for file fields. Disabled by default
-    private $multiplefiles = false;
+    private bool $multiplefiles = false;
     
     #Partner libraries flags
-    private static $CuteBytes = false;
-    private static $SandClock = false;
-    private static $PrettyURL = false;
+    private static bool $CuteBytes = false;
+    private static bool $SandClock = false;
+    private static bool $PrettyURL = false;
     
     #Regex patterns for validations
-    public static $URIRegex = '/^(about|afp|aim|bitcoin|callto|chrome|chrome-extension|content|dns|ed2k|facetime|fax|feed|file|ftp|geo|git|hcp|http|https|im|imap|info|irc|irc6|ircs|itms|jabber|lastfm|ldap|ldaps|magnet|maps|market|message|mms|ms-help|msnim|mumble|nfs|oid|pkcs11|pop|proxy|res|rtmfp|rtmp|rtsp|sftp|shttp|sip|sips|slype|smb|sms|soldat|spotify|ssh|steam|svn|teamspeak|tel|telnet|tftp|tv|udp|unreal|urn|ventrilo|webcal|xfire|xmpp):\/\/(-\.)?([^\s\/?\.#-]+\.?)+(\/[^\s]*)?$/i';
+    public static string $URIRegex = '/^(about|afp|aim|bitcoin|callto|chrome|chrome-extension|content|dns|ed2k|facetime|fax|feed|file|ftp|geo|git|hcp|http|https|im|imap|info|irc|irc6|ircs|itms|jabber|lastfm|ldap|ldaps|magnet|maps|market|message|mms|ms-help|msnim|mumble|nfs|oid|pkcs11|pop|proxy|res|rtmfp|rtmp|rtsp|sftp|shttp|sip|sips|slype|smb|sms|soldat|spotify|ssh|steam|svn|teamspeak|tel|telnet|tftp|tv|udp|unreal|urn|ventrilo|webcal|xfire|xmpp):\/\/(-\.)?([^\s\/?\.#-]+\.?)+(\/[^\s]*)?$/i';
     #Uses W3C pattern for compatibility with input type 'email'. Does not imply that all matching strings will be actual proper emails
-    public static $eMailRegex = '/^[a-zA-Z0-9.!#$%&’*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/';
-    public static $ColorHexRegex = '/[^a-fA-F0-9]/m';
+    public static string $eMailRegex = '/^[a-zA-Z0-9.!#$%&’*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/';
+    public static string $ColorHexRegex = '/[^a-fA-F0-9]/m';
     #While this static value can be changed, it is not recommended, unless you are ready to decrease your system security
-    public static $PasswordPattern = '(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$';
+    public static string $PasswordPattern = '(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$';
     
     #Formatting settings
-    private $dateformat = 'Y-m-d';
-    private $timeformat = 'H:i:s';
-    private $datetimeformat = '';
-    private $language = 'en';
+    private string $dateformat = 'Y-m-d';
+    private string $timeformat = 'H:i:s';
+    private string $datetimeformat = '';
+    private string $language = 'en';
     #Set an optional currency code (or symbol) for 'price' type. Add space at the end to put it beofre the value
-    private $currencyCode = '';
+    private string $currencyCode = '';
     #Set precission of floating point for 'price' type
-    private $currencyPrecision = 2;
+    private string $currencyPrecision = 2;
     #Set to 'false' to treat values for 'price' type as floats. Treat values as fractions (like cents in case of USD) by default
-    private $currencyFraction = true;
+    private string $currencyFraction = true;
     #Set default values for 'textarea' type
-    private $textareaSettings = [
+    private array $textareaSettings = [
         'rows'=>'20',
         'cols'=>'2',
         'minlength'=>'',
@@ -72,23 +72,23 @@ class Api
     ];
     
     #Counters for elements
-    private $countercheckbox = 1;
-    private $counteremail = 1;
-    private $counterurl = 1;
-    private $countertextarea = 1;
-    private $counterfile = 1;
-    private $countercolor = 1;
-    private $countertext = 1;
-    private $countertel = 1;
-    private $counterpassword = 1;
-    private $counterimg = 1;
-    private $counterprice = 1;
-    private $counterbytes = 1;
-    private $counterseconds = 1;
-    private $counterdatetime = 1;
-    private $countertime = 1;
-    private $counterdate = 1;
-    private $counterhtml = 1;
+    private int $countercheckbox = 1;
+    private int $counteremail = 1;
+    private int $counterurl = 1;
+    private int $countertextarea = 1;
+    private int $counterfile = 1;
+    private int $countercolor = 1;
+    private int $countertext = 1;
+    private int $countertel = 1;
+    private int $counterpassword = 1;
+    private int $counterimg = 1;
+    private int $counterprice = 1;
+    private int $counterbytes = 1;
+    private int $counterseconds = 1;
+    private int $counterdatetime = 1;
+    private int $countertime = 1;
+    private int $counterdate = 1;
+    private int $counterhtml = 1;
     
     public function generate(array $array): string
     {
