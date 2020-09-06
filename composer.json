@@ -4,7 +4,7 @@
     "keywords": ["array","table","php","converter"],
     "description": "Library to convert arrays to table.",
     "homepage": "https://github.com/Simbiat/array2table",
-    "license": "MIT",
+    "license": "AGPL-3.0-or-later",
     "authors": [
         {
             "name": "Dmitry Kustov",
