@@ -17,7 +17,7 @@
         "php": "^7.4"
     },
     "suggest": {
-        "simbiat/prettyurl": "Applies additional conversions for pretty SEO URLs",
+        "simbiat/http20": "Provides 'pretty' function for pretty URLs",
         "simbiat/cute-bytes": "Allows to present bytes in human-readable format",
         "simbiat/sand-clock": "Collection of functions for presenting time-related objects"
     },

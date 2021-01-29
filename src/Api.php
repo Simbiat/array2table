@@ -98,7 +98,7 @@ class Api
         if (!self::$SandClock && method_exists('\SandClock\Api','format')) {
             self::$SandClock = true;
         }
-        if (!self::$PrettyURL && method_exists('\PrettyURL\PrettyURL','pretty')) {
+        if (!self::$PrettyURL && method_exists('\http20\PrettyURL','pretty')) {
             self::$PrettyURL = true;
         }
         if (empty($array)) {
@@ -435,7 +435,7 @@ class Api
                 #Processes string only if validates as actual URI/URL or e-mail
                 if (preg_match(($string_type === 'url' ? self::$URIRegex : self::$eMailRegex), $string)) {
                     if ($string_type === 'url' && self::$PrettyURL) {
-                        $string = (new \PrettyURL\PrettyURL)->pretty($string, $this->getSanitize());
+                        $string = (new \http20\PrettyURL)->pretty($string, $this->getSanitize());
                     }
                     if ($this->getEditable() && $footer === false) {
                         $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixid.'_'.$string_type.'" type="'.$string_type.'" inputmode="'.$string_type.'" value="'.$string.'">';
