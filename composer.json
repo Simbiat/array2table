@@ -14,7 +14,7 @@
         }
     ],
     "require": {
-        "php": "^7.4"
+        "php": "^8"
     },
     "suggest": {
         "simbiat/http20": "Provides 'pretty' function for pretty URLs",

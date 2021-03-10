@@ -183,20 +183,13 @@ class Api
                     if ($this->multiflag) {
                         if (!is_array($this->getTypes()[$column])) {
                             $columnData = array_column($array, $column);
-                            switch ($footer) {
-                                case '#func_sum':
-                                    $tempFooter[$column] = 'Sum: '.$this->prepare(array_sum($columnData), $column, 0, true);
-                                    break;
-                                case '#func_avg':
-                                    $tempFooter[$column] = 'Avg: '.$this->prepare(array_sum($columnData)/$length, $column, 0, true);
-                                    break;
-                                case '#func_min':
-                                    $tempFooter[$column] = 'Min: '.$this->prepare(min($columnData), $column, 0, true);
-                                    break;
-                                case '#func_max':
-                                    $tempFooter[$column] = 'Max: '.$this->prepare(max($columnData), $column, 0, true);
-                                    break;
-                            }
+                            $tempFooter[$column] = match($footer) {
+                                '#func_sum' => 'Sum: '.$this->prepare(array_sum($columnData), $column, 0, true),
+                                '#func_avg' => $tempFooter[$column] = 'Avg: '.$this->prepare(array_sum($columnData)/$length, $column, 0, true),
+                                '#func_min' => $tempFooter[$column] = 'Min: '.$this->prepare(min($columnData), $column, 0, true),
+                                '#func_max' => $tempFooter[$column] = 'Max: '.$this->prepare(max($columnData), $column, 0, true),
+                                default => '',
+                            };
                         } else {
                             throw new \UnexpectedValueException('Footer function was sent for column '.$column.', but column has multiple types assigned to it.');
                         }
@@ -319,7 +312,7 @@ class Api
     }
     
     
-    private function prepare($string, int $colnum, int $rownum = 0, bool $footer = false): string
+    private function prepare(bool|int|float|string $string, int $colnum, int $rownum = 0, bool $footer = false): string
     {
         $string = strval($string);
         #Determine type
