@@ -92,13 +92,13 @@ class array2table
     
     public function generate(array $array): string
     {
-        if (!self::$CuteBytes && method_exists('\CuteBytes\Api','bytes')) {
+        if (!self::$CuteBytes && method_exists('\Simbiat\CuteBytes','bytes')) {
             self::$CuteBytes = true;
         }
-        if (!self::$SandClock && method_exists('\SandClock\Api','format')) {
+        if (!self::$SandClock && method_exists('\Simbiat\SandClock','format')) {
             self::$SandClock = true;
         }
-        if (!self::$PrettyURL && method_exists('\http20\PrettyURL','pretty')) {
+        if (!self::$PrettyURL && method_exists('\Simbiat\http20\PrettyURL','pretty')) {
             self::$PrettyURL = true;
         }
         if (empty($array)) {
@@ -337,36 +337,36 @@ class array2table
             case 'date':
                 if ($this->getEditable() && $footer === false) {
                     if (self::$SandClock) {
-                        $string = (new \SandClock\Api)->setFormat('Y-m-d')->format($string);
+                        $string = (new \Simbiat\SandClock)->setFormat('Y-m-d')->format($string);
                     }
                     $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixid.'_'.$string_type.'" type="date" step="1" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" value="'.$string.'">';
                 } else {
                     if (self::$SandClock) {
-                        $string = (new \SandClock\Api)->setFormat($this->getDateFormat())->format($string);
+                        $string = (new \Simbiat\SandClock)->setFormat($this->getDateFormat())->format($string);
                     }
                 }
                 break;
             case 'time':
                 if ($this->getEditable() && $footer === false) {
                     if (self::$SandClock) {
-                        $string = (new \SandClock\Api)->setFormat('H:i:s')->format($string);
+                        $string = (new \Simbiat\SandClock)->setFormat('H:i:s')->format($string);
                     }
                     $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixid.'_'.$string_type.'" type="time" step="1" pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}" value="'.$string.'">';
                 } else {
                     if (self::$SandClock) {
-                        $string = (new \SandClock\Api)->setFormat($this->getTimeFormat())->format($string);
+                        $string = (new \Simbiat\SandClock)->setFormat($this->getTimeFormat())->format($string);
                     }
                 }
                 break;
             case 'datetime':
                 if ($this->getEditable() && $footer === false) {
                     if (self::$SandClock) {
-                        $string = (new \SandClock\Api)->setFormat('Y-m-d\TH:i:s')->format($string);
+                        $string = (new \Simbiat\SandClock)->setFormat('Y-m-d\TH:i:s')->format($string);
                     }
                     $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixid.'_'.$string_type.'" type="datetime-local" step="1" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}" value="'.$string.'">';
                 } else {
                     if (self::$SandClock) {
-                        $string = (new \SandClock\Api)->setFormat($this->getDateTimeFormat())->format($string);
+                        $string = (new \Simbiat\SandClock)->setFormat($this->getDateTimeFormat())->format($string);
                     }
                 }
                 break;
@@ -377,11 +377,11 @@ class array2table
                 } else {
                     if ($string_type === 'bytes') {
                         if (self::$CuteBytes) {
-                            $string = (new \CuteBytes\Api)->bytes($string);
+                            $string = (new \Simbiat\CuteBytes)->bytes($string);
                         }
                     } else {
                         if (self::$SandClock) {
-                            $string = (new \SandClock\Api)->seconds($string, true, $this->getLanguage());
+                            $string = (new \Simbiat\SandClock)->seconds($string, true, $this->getLanguage());
                         }
                     }
                 }
@@ -428,7 +428,7 @@ class array2table
                 #Processes string only if validates as actual URI/URL or e-mail
                 if (preg_match(($string_type === 'url' ? self::$URIRegex : self::$eMailRegex), $string)) {
                     if ($string_type === 'url' && self::$PrettyURL) {
-                        $string = (new \http20\PrettyURL)->pretty($string, $this->getSanitize());
+                        $string = (new \Simbiat\http20\PrettyURL)->pretty($string, $this->getSanitize());
                     }
                     if ($this->getEditable() && $footer === false) {
                         $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixid.'_'.$string_type.'" type="'.$string_type.'" inputmode="'.$string_type.'" value="'.$string.'">';
