@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
-namespace array2table;
+namespace Simbiat;
 
-class Api
+class array2table
 {
     #Generate <table> if true or <div> if false
     private bool $semantic = true;
