@@ -12,7 +12,7 @@ Yes, this library can be used for creating forms, that you will be able to proce
 # How to use
 The best way to understand what you will be getting is a live example, so check out `sample.html` somewhere near this README. There you will find 3 tables, that were generated using following code:
 ```php
-echo (new \array2table\Api)->setIdPrefix('sem_edit')->setCaption('Semantic, editable')->setFooter(['#func_sum','',''])->setCurrencyCode('USD ')->setCurrencyPrecision(2)->setCurrencyFraction(true)->setCheckbox(true)->setChecked(true)->setEditable(true)->setTextareaSetting('cols', '20')->setTextareaSetting('rows', '5')->setTypes(['number','string',['text','password','tel','date', 'time', 'datetime', 'seconds', 'bytes', 'price', 'checkbox', 'email', 'url', 'html', 'img', 'color']])->generate(
+echo (new \Simbiat\array2table)->setIdPrefix('sem_edit')->setCaption('Semantic, editable')->setFooter(['#func_sum','',''])->setCurrencyCode('USD ')->setCurrencyPrecision(2)->setCurrencyFraction(true)->setCheckbox(true)->setChecked(true)->setEditable(true)->setTextareaSetting('cols', '20')->setTextareaSetting('rows', '5')->setTypes(['number','string',['text','password','tel','date', 'time', 'datetime', 'seconds', 'bytes', 'price', 'checkbox', 'email', 'url', 'html', 'img', 'color']])->generate(
     [
             ['Points'=>'1','Field'=>'Login','Value'=>'Simbiat'],
             ['1','Password','Simbiat'],
@@ -32,7 +32,7 @@ echo (new \array2table\Api)->setIdPrefix('sem_edit')->setCaption('Semantic, edit
     ]
 );
 
-echo (new \array2table\Api)->setIdPrefix('sem_nonedit')->setCaption('Semantic, non-editable')->setFooter(['#func_sum','',''])->setCurrencyCode('USD ')->setCurrencyPrecision(2)->setCurrencyFraction(true)->setCheckbox(true)->setChecked(true)->setEditable(false)->setTextareaSetting('cols', '20')->setTextareaSetting('rows', '5')->setTypes(['number','string',['text','password','tel','date', 'time', 'datetime', 'seconds', 'bytes', 'price', 'checkbox', 'email', 'url', 'html', 'img', 'color']])->generate(
+echo (new \Simbiat\array2table)->setIdPrefix('sem_nonedit')->setCaption('Semantic, non-editable')->setFooter(['#func_sum','',''])->setCurrencyCode('USD ')->setCurrencyPrecision(2)->setCurrencyFraction(true)->setCheckbox(true)->setChecked(true)->setEditable(false)->setTextareaSetting('cols', '20')->setTextareaSetting('rows', '5')->setTypes(['number','string',['text','password','tel','date', 'time', 'datetime', 'seconds', 'bytes', 'price', 'checkbox', 'email', 'url', 'html', 'img', 'color']])->generate(
     [
             ['Points'=>'1','Field'=>'Login','Value'=>'Simbiat'],
             ['1','Password','Simbiat'],
@@ -52,7 +52,7 @@ echo (new \array2table\Api)->setIdPrefix('sem_nonedit')->setCaption('Semantic, n
     ]
 );
 
-echo (new \array2table\Api)->setIdPrefix('nonsem_nonedit')->setCaption('Non-semantic, non-editable')->setSemantic(false)->setStyling(true)->setFooter(['#func_sum','',''])->setCurrencyCode('USD ')->setCurrencyPrecision(2)->setCurrencyFraction(true)->setCheckbox(true)->setChecked(true)->setEditable(false)->setTextareaSetting('cols', '20')->setTextareaSetting('rows', '5')->setTypes(['number','string',['text','password','tel','date', 'time', 'datetime', 'seconds', 'bytes', 'price', 'checkbox', 'email', 'url', 'html', 'img', 'color']])->generate(
+echo (new \Simbiat\array2table)->setIdPrefix('nonsem_nonedit')->setCaption('Non-semantic, non-editable')->setSemantic(false)->setStyling(true)->setFooter(['#func_sum','',''])->setCurrencyCode('USD ')->setCurrencyPrecision(2)->setCurrencyFraction(true)->setCheckbox(true)->setChecked(true)->setEditable(false)->setTextareaSetting('cols', '20')->setTextareaSetting('rows', '5')->setTypes(['number','string',['text','password','tel','date', 'time', 'datetime', 'seconds', 'bytes', 'price', 'checkbox', 'email', 'url', 'html', 'img', 'color']])->generate(
     [
             ['Points'=>'1','Field'=>'Login','Value'=>'Simbiat'],
             ['1','Password','Simbiat'],
@@ -74,7 +74,7 @@ echo (new \array2table\Api)->setIdPrefix('nonsem_nonedit')->setCaption('Non-sema
 ```
 
 Here's what the code does:
-1. Create new object with `(new \array2table\Api)`. Obviously load the library before that.
+1. Create new object with `(new \Simbiat\array2table)`. Obviously load the library before that.
 2. Optionally set a `prefix` for elements' IDs and Classes with `setIdPrefix('prefix')`. Very useful, in case you will have multiple tables like that on one page, like `sample.html` does.
 3. Optionally set `caption` for the table with `setCaption('caption')`. If this is set a `<caption></caption>` will be added to the table if it's semantic or respective `<div></div>` if it's not. Basically, this is a name of the table.
 4. In case of non-semantic tables we have `setSemantic(false)`. This forces use of `<div></div>` elements instead if regular (semantic) table elements (table, td, tr, th, .etc). When creating actual tables, it is recommended to use semantic approach (thus default is `true`), but in some cases you may want to have `<div></div>`.
