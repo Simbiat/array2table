@@ -197,7 +197,7 @@ Each "inner" array in "outer" array represents a row, while each element in "inn
 	</tr>
 	<tr>
 		<td>color</td>
-		<td><code>&lt;input id="'.${$string_type.'id'}.'" class="'.$prefixid.'_color" type="color" value="#ffffff" pattern="^#?([a-fA-F0-9]{6})$"&gt;</code></td>
+		<td><code>&lt;input id="'.${$string_type.'id'}.'" class="'.$prefixId.'_color" type="color" value="#ffffff" pattern="^#?([a-fA-F0-9]{6})$"&gt;</code></td>
 		<td>Returns color picker if supported by browser. No need to send <code>#</code> when providing data, since it will be added automatically.<td>
 	</tr>
 </table>
@@ -250,7 +250,7 @@ Each "inner" array in "outer" array represents a row, while each element in "inn
 		<td>Optional header for tables. Expects array with same length as number of columns in data provided. Alternatively will attempt to use keys from first row, if it's an associative array.</td>
 	</tr>
 	<tr>
-		<td><code>setRepeatHeader(int $repeatheader)</code></td>
+		<td><code>setRepeatHeader(int $repeatHeader)</code></td>
 		<td><code>0</code></td>
 		<td>If value is not 0, will repeat header every X number of lines, where X is the value set by this setter. Recommended for large tables.</td>
 	</tr>
@@ -275,12 +275,12 @@ Each "inner" array in "outer" array represents a row, while each element in "inn
 		<td>Optional list of types to be applied to columns and rows. Expects an array in format as described in [How to use](#how-to-use).</td>
 	</tr>
 	<tr>
-		<td><code>setIdPrefix(string $idprefix)</code></td>
+		<td><code>setIdPrefix(string $idPrefix)</code></td>
 		<td><code>'simbiat'</code></td>
 		<td>Optional prefix for elements' IDs and some of the classes.</td>
 	</tr>
 	<tr>
-		<td><code>setMultipleFiles(bool $multiplefiles)</code></td>
+		<td><code>setMultipleFiles(bool $multipleFiles)</code></td>
 		<td><code>false</code></td>
 		<td>Option to allow multiple files upload for file fields.</td>
 	</tr>
@@ -290,12 +290,12 @@ Each "inner" array in "outer" array represents a row, while each element in "inn
 		<td>Date format to use with <code>Simbiat\SandClock</code> library for <code>date</code> type.</td>
 	</tr>
 	<tr>
-		<td><code>setTimeFormat(string $timeformat)</code></td>
+		<td><code>setTimeFormat(string $timeFormat)</code></td>
 		<td><code>'H:i:s'</code></td>
 		<td>Time format to use with <code>Simbiat\SandClock</code> library for <code>time</code> type.</td>
 	</tr>
 	<tr>
-		<td><code>setDateTimeFormat(string $datetimeformat)</code></td>
+		<td><code>setDateTimeFormat(string $dateTimeFormat)</code></td>
 		<td><code>''</code></td>
 		<td>Date and time format to use with <code>Simbiat\SandClock</code> library for <code>date</code> type. If empty will combine date format and time format set by respective setters as <code>date time</code>.</td>
 	</tr>
