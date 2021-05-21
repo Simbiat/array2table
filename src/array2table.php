@@ -429,7 +429,7 @@ class array2table
                 #Processes string only if validates as actual URI/URL or e-mail
                 if (preg_match(($string_type === 'url' ? self::$URIRegex : self::$eMailRegex), $string)) {
                     if ($string_type === 'url' && self::$PrettyURL) {
-                        $string = (new PrettyURL)->pretty($string, urlsafe: $this->getSanitize());
+                        $string = (new PrettyURL)->pretty($string, urlSafe: $this->getSanitize());
                     }
                     if ($this->getEditable() && $footer === false) {
                         $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixId.'_'.$string_type.'" type="'.$string_type.'" inputmode="'.$string_type.'" value="'.$string.'">';
