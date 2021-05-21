@@ -4,7 +4,7 @@
 declare(strict_types=1);
 namespace Simbiat;
 
-use Simbiat\http20\PrettyURL;
+use Simbiat\HTTP20\PrettyURL;
 
 class array2table
 {
@@ -102,7 +102,7 @@ class array2table
         if (!self::$SandClock && method_exists('\Simbiat\SandClock','format')) {
             self::$SandClock = true;
         }
-        if (!self::$PrettyURL && method_exists('\Simbiat\http20\PrettyURL','pretty')) {
+        if (!self::$PrettyURL && method_exists('\Simbiat\HTTP20\PrettyURL','pretty')) {
             self::$PrettyURL = true;
         }
         if (empty($array)) {
