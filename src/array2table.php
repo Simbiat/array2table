@@ -38,7 +38,7 @@ class array2table
     private int $groupsCount = 0;
     #Optional types, that allow additional formatting of text
     private array $types = [];
-    #Optional prefix for elements' IDs and some of the classes
+    #Optional prefix for elements' IDs and some classes
     private string $idPrefix = 'simbiat';
     #Option to allow multiple files upload for file fields. Disabled by default
     private bool $multipleFiles = false;
@@ -94,6 +94,9 @@ class array2table
     private int $dateCount = 1;
     private int $htmlCount = 1;
 
+    /**
+     * @throws \Exception
+     */
     public function generate(array $array): string
     {
         if (!self::$CuteBytes && method_exists('\Simbiat\CuteBytes','bytes')) {
@@ -215,6 +218,9 @@ class array2table
         return $this;
     }
 
+    /**
+     * @throws \Exception
+     */
     private function table(array $array): string
     {
         #Get prefix
@@ -313,6 +319,9 @@ class array2table
         return $column;
     }
 
+    /**
+     * @throws \Exception
+     */
     private function prepare(bool|int|float|string $string, int $colnum, int $rownum = 0, bool $footer = false): string
     {
         $string = strval($string);
@@ -345,6 +354,7 @@ class array2table
                     if (self::$SandClock) {
                         $string = (new SandClock)->setFormat($this->getDateFormat())->format($string);
                     }
+                    $string = '<time datetime="'.(new \DateTime($string))->format('Y-m-d').'">'.$string.'</time>';
                 }
                 break;
             case 'time':
@@ -357,6 +367,7 @@ class array2table
                     if (self::$SandClock) {
                         $string = (new SandClock)->setFormat($this->getTimeFormat())->format($string);
                     }
+                    $string = '<time datetime="'.(new \DateTime($string))->format('H:i:s').'">'.$string.'</time>';
                 }
                 break;
             case 'datetime':
@@ -369,6 +380,7 @@ class array2table
                     if (self::$SandClock) {
                         $string = (new SandClock)->setFormat($this->getDateTimeFormat())->format($string);
                     }
+                    $string = '<time datetime="'.(new \DateTime($string))->format('Y-m-dTH:i:s.u').'">'.$string.'</time>';
                 }
                 break;
             case 'seconds':
@@ -391,7 +403,7 @@ class array2table
                 #Expects integer string, where last 2 numbers are the "fractions" (like cents)
                 if ($this->getCurrencyFraction()) {
                     $string = substr_replace(strval(intval($string)), '.', -$this->getCurrencyPrecision(), 0);
-                    if (substr($string, 0, 1) === '.') {
+                    if (str_starts_with($string, '.')) {
                         $string = '0'.$string;
                     }
                 } else {
@@ -399,7 +411,7 @@ class array2table
                 }
                 if ((!$this->getEditable() || $footer === true) && !empty($this->getCurrencyCode())) {
                     #If code ends with space - place it before the value
-                    if (substr($this->getCurrencyCode(), -1) === ' ') {
+                    if (str_ends_with($this->getCurrencyCode(), ' ')) {
                         $string = $this->getCurrencyCode().$string;
                     } else {
                         $string = $string.' '.$this->getCurrencyCode();
@@ -677,7 +689,7 @@ class array2table
 
     public function setIdPrefix(string $idPrefix): self
     {
-        if (!empty($idPrefix) && substr($idPrefix, -1) !== '_') {
+        if (!empty($idPrefix) && !str_ends_with($idPrefix, '_')) {
             $idPrefix .= '_';
         }
         $this->idPrefix = $idPrefix;
