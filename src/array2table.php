@@ -478,7 +478,7 @@ class array2table
                 #If editable, treat as input="file"
                 if (!$this->getEditable() || $footer === true) {
                     #alt is set as "" to make some browsers consider images as non-essential. If an image needs to be considered as essential it's recommended not to show it through this library. Alternatively you can update it through JavaScript or other programmatic methods.
-                    $string = '<img src="'.$string.'" alt="" decoding="async" class="'.$prefixId.'_'.$string_type.'">';
+                    $string = '<img loading="lazy" src="'.$string.'" alt="" decoding="async" class="'.$prefixId.'_'.$string_type.'">';
                     break;
                 }
                 break;
