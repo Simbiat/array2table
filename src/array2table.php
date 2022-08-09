@@ -440,7 +440,7 @@ class array2table
                 if (preg_match(($string_type === 'url' ? self::$URIRegex : self::$eMailRegex), $string)) {
                     if ($string_type === 'url' && self::$PrettyURL) {
                         /** @noinspection PhpFullyQualifiedNameUsageInspection */
-                        $string = (new \Simbiat\HTTP20\PrettyURL)->pretty($string, urlSafe: $this->getSanitize());
+                        $string = \Simbiat\HTTP20\PrettyURL::pretty($string, urlSafe: $this->getSanitize());
                     }
                     if ($this->getEditable() && $footer === false) {
                         $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixId.'_'.$string_type.'" type="'.$string_type.'" inputmode="'.$string_type.'" value="'.$string.'">';
