@@ -345,12 +345,12 @@ class array2table
             case 'date':
                 if ($this->getEditable() && $footer === false) {
                     if (self::$SandClock) {
-                        $string = (new SandClock)->setFormat('Y-m-d')->format($string);
+                        $string = SandClock::format($string, 'Y-m-d');
                     }
                     $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixId.'_'.$string_type.'" type="date" step="1" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" value="'.$string.'">';
                 } else {
                     if (self::$SandClock) {
-                        $string = (new SandClock)->setFormat($this->getDateFormat())->format($string);
+                        $string = SandClock::format($string, $this->getDateFormat());
                     }
                     $string = '<time datetime="'.(new \DateTime($string))->format('Y-m-d').'">'.$string.'</time>';
                 }
@@ -358,12 +358,12 @@ class array2table
             case 'time':
                 if ($this->getEditable() && $footer === false) {
                     if (self::$SandClock) {
-                        $string = (new SandClock)->setFormat('H:i:s')->format($string);
+                        $string = SandClock::format($string, 'H:i:s');
                     }
                     $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixId.'_'.$string_type.'" type="time" step="1" pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}" value="'.$string.'">';
                 } else {
                     if (self::$SandClock) {
-                        $string = (new SandClock)->setFormat($this->getTimeFormat())->format($string);
+                        $string = SandClock::format($string, $this->getTimeFormat());
                     }
                     $string = '<time datetime="'.(new \DateTime($string))->format('H:i:s').'">'.$string.'</time>';
                 }
@@ -371,12 +371,12 @@ class array2table
             case 'datetime':
                 if ($this->getEditable() && $footer === false) {
                     if (self::$SandClock) {
-                        $string = (new SandClock)->setFormat('Y-m-d\TH:i:s')->format($string);
+                        $string = SandClock::format($string, 'Y-m-d\TH:i:s');
                     }
                     $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixId.'_'.$string_type.'" type="datetime-local" step="1" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}" value="'.$string.'">';
                 } else {
                     if (self::$SandClock) {
-                        $string = (new SandClock)->setFormat($this->getDateTimeFormat())->format($string);
+                        $string = SandClock::format($string, $this->getDateTimeFormat());
                     }
                     $string = '<time datetime="'.(new \DateTime($string))->format('Y-m-dTH:i:s.u').'">'.$string.'</time>';
                 }
@@ -392,7 +392,7 @@ class array2table
                         }
                     } else {
                         if (self::$SandClock) {
-                            $string = (new SandClock)->seconds($string, true, $this->getLanguage());
+                            $string = SandClock::seconds($string, true, $this->getLanguage());
                         }
                     }
                 }
