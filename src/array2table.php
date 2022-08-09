@@ -190,9 +190,9 @@ class array2table
                             $columnData = array_column($array, $column);
                             $tempFooter[$column] = match($footer) {
                                 '#func_sum' => 'Sum: '.$this->prepare(array_sum($columnData), $column, 0, true),
-                                '#func_avg' => $tempFooter[$column] = 'Avg: '.$this->prepare(array_sum($columnData)/$length, $column, 0, true),
-                                '#func_min' => $tempFooter[$column] = 'Min: '.$this->prepare(min($columnData), $column, 0, true),
-                                '#func_max' => $tempFooter[$column] = 'Max: '.$this->prepare(max($columnData), $column, 0, true),
+                                '#func_avg' => 'Avg: '.$this->prepare(array_sum($columnData)/$length, $column, 0, true),
+                                '#func_min' => 'Min: '.$this->prepare(min($columnData), $column, 0, true),
+                                '#func_max' => 'Max: '.$this->prepare(max($columnData), $column, 0, true),
                                 default => '',
                             };
                         } else {
@@ -229,7 +229,7 @@ class array2table
             $table .= '<'.($this->getSemantic() ? 'caption' : 'div'.($this->getStyling() ? ' style="display:table-caption;text-align:center;"' : '')).' id="'.$prefixId.'caption">'.$this->getCaption().'</'.($this->getSemantic() ? 'caption' : 'div').'>';
         }
         #Set colgroup value
-        if ($this->groupsCount !== 0 && !empty($this->getColGroup()) && $this->getSemantic()) {
+        if ($this->groupsCount !== 0 && !empty($this->getColGroup())) {
             $table .= '<'.($this->getSemantic() ? 'colgroup' : 'div'.($this->getStyling() ? ' style="display:table-column-group;"' : '')).' id="'.$prefixId.'colgroup">';
             foreach ($this->getColGroup() as $key=>$group) {
                 $table .= '<'.($this->getSemantic() ? 'col' : 'div'.($this->getStyling() ? ' style="display:table-column;"' : '')).'  id="'.$prefixId.'col_'.$key.'" span="'.$group['span'].'"';
