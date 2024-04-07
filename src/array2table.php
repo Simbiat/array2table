@@ -4,6 +4,8 @@
 declare(strict_types=1);
 namespace Simbiat;
 
+use Simbiat\HTTP20\PrettyURL;
+
 class array2table
 {
     #Generate <table> if true or <div> if false
@@ -97,13 +99,13 @@ class array2table
      */
     public function generate(array $array): string
     {
-        if (!self::$CuteBytes && method_exists('\Simbiat\CuteBytes','bytes')) {
+        if (!self::$CuteBytes && method_exists(CuteBytes::class,'bytes')) {
             self::$CuteBytes = true;
         }
-        if (!self::$SandClock && method_exists('\Simbiat\SandClock','format')) {
+        if (!self::$SandClock && method_exists(SandClock::class,'format')) {
             self::$SandClock = true;
         }
-        if (!self::$PrettyURL && method_exists('\Simbiat\HTTP20\PrettyURL','pretty')) {
+        if (!self::$PrettyURL && method_exists(PrettyURL::class,'pretty')) {
             self::$PrettyURL = true;
         }
         if (empty($array)) {
@@ -117,37 +119,33 @@ class array2table
             $length = count($array);
         }
         #Check if header have same length
-        if (!empty($this->getHeader()) && count($this->getHeader()) != $length) {
+        if (!empty($this->getHeader()) && count($this->getHeader()) !== $length) {
             throw new \UnexpectedValueException('Header was sent, but has different length than array.');
         }
         #Check if footer have same length
-        if (!empty($this->getFooter()) && count($this->getFooter()) != $length) {
+        if (!empty($this->getFooter()) && count($this->getFooter()) !== $length) {
             throw new \UnexpectedValueException('Footer was sent, but has different length than array.');
         }
         #Check if types have same length
         if (empty($this->getTypes())) {
             #Filling the types' array with 'string' value. Using 'string' so that all elements would be converted to regular <span> elements as a safety precaution
             $this->setTypes(array_fill(0, $length, 'string'));
-        } else {
-            if (count($this->getTypes()) != $length) {
-                throw new \UnexpectedValueException('Types were sent, but have different length than array.');
-            }
+        } elseif (count($this->getTypes()) !== $length) {
+            throw new \UnexpectedValueException('Types were sent, but have different length than array.');
         }
         #Check if colgroup list has same length
         if ($this->groupsCount !== 0 && $this->groupsCount !== $length) {
             throw new \UnexpectedValueException('Column groups were sent, but have different length than array.');
         }
         #Disable repeat header if it's equal to length
-        if ($this->getRepeatHeader() == $length) {
+        if ($this->getRepeatHeader() === $length) {
             $this->setRepeatHeader(0);
         }
         #Set header
         if ($this->multiFlag) {
             $array = array_values($array);
-            if (!empty($array[0])) {
-                if ($this->associative($array[0]) && empty($this->getHeader())) {
-                    $this->setHeader(array_keys($array[0]));
-                }
+            if (!empty($array[0]) && $this->associative($array[0]) && empty($this->getHeader())) {
+                $this->setHeader(array_keys($array[0]));
             }
             #Convert data's associative array to regular one for consistency
             $array = array_values($array);
@@ -291,14 +289,11 @@ class array2table
                 $table .= '<'.($this->getSemantic() ? 'th' : 'div'.($this->getStyling() ? ' style="display:table-cell;padding:1px;vertical-align: middle;"' : '')).' class="'.$prefixId.'th_'.$key.'">'.$footer.'</'.($this->getSemantic() ? 'th' : 'div').'>';
             }
             $table .= '</'.($this->getSemantic() ? 'tr' : 'div').'></'.($this->getSemantic() ? 'tfoot' : 'div').'>';
-        } else {
-            #If no footer, but have header and use of header as footer is enabled - use header
-            if ($this->getFooterHeader() && !empty($this->getHeader())) {
-                $table .= '<'.($this->getSemantic() ? 'tfoot' : 'div'.($this->getStyling() ? ' style="display:table-footer-group;font-weight:bold;text-align:center;"' : '')).' id="'.$prefixId.'tfoot"><'.($this->getSemantic() ? 'tr' : 'div'.($this->getStyling() ? ' style="display:table-row;"' : '')).'>';
-                #Add checkbox column (empty for footer)
-                $table .= $this->checkboxColumn($prefixId);
-                $table .= '</'.($this->getSemantic() ? 'tr' : 'div').'></'.($this->getSemantic() ? 'tfoot' : 'div').'>';
-            }
+        } elseif ($this->getFooterHeader() && !empty($this->getHeader())) {
+            $table .= '<'.($this->getSemantic() ? 'tfoot' : 'div'.($this->getStyling() ? ' style="display:table-footer-group;font-weight:bold;text-align:center;"' : '')).' id="'.$prefixId.'tfoot"><'.($this->getSemantic() ? 'tr' : 'div'.($this->getStyling() ? ' style="display:table-row;"' : '')).'>';
+            #Add checkbox column (empty for footer)
+            $table .= $this->checkboxColumn($prefixId);
+            $table .= '</'.($this->getSemantic() ? 'tr' : 'div').'></'.($this->getSemantic() ? 'tfoot' : 'div').'>';
         }
         $table .= '</'.($this->getSemantic() ? 'table' : 'div').'>';
         return $table;
@@ -322,7 +317,7 @@ class array2table
      */
     private function prepare(bool|int|float|string $string, int $colnum, int $rownum = 0, bool $footer = false): string
     {
-        $string = strval($string);
+        $string = (string)$string;
         #Determine type
         $string_type = $this->getTypes()[$colnum];
         if (is_array($string_type)) {
@@ -338,12 +333,12 @@ class array2table
                 ${$string_type.'id'} = $prefixId.$string_type.'_'.$this->getCounter($string_type);
             }
         }
-        if ($this->getSanitize() && $string_type != 'html') {
+        if ($string_type !== 'html' && $this->getSanitize()) {
             $string = strip_tags($string);
         }
         switch ($string_type) {
             case 'date':
-                if ($this->getEditable() && $footer === false) {
+                if ($footer === false && $this->getEditable()) {
                     if (self::$SandClock) {
                         $string = SandClock::format($string, 'Y-m-d');
                     }
@@ -356,7 +351,7 @@ class array2table
                 }
                 break;
             case 'time':
-                if ($this->getEditable() && $footer === false) {
+                if ($footer === false && $this->getEditable()) {
                     if (self::$SandClock) {
                         $string = SandClock::format($string, 'H:i:s');
                     }
@@ -369,7 +364,7 @@ class array2table
                 }
                 break;
             case 'datetime':
-                if ($this->getEditable() && $footer === false) {
+                if ($footer === false && $this->getEditable()) {
                     if (self::$SandClock) {
                         $string = SandClock::format($string, 'Y-m-d\TH:i:s');
                     }
@@ -383,39 +378,33 @@ class array2table
                 break;
             case 'seconds':
             case 'bytes':
-                if ($this->getEditable() && $footer === false) {
+                if ($footer === false && $this->getEditable()) {
                     $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixId.'_'.$string_type.'" type="number" step="1" min="0" inputmode="decimal" value="'.$string.'">';
-                } else {
-                    if ($string_type === 'bytes') {
-                        if (self::$CuteBytes) {
-                            $string = (new CuteBytes)->bytes($string);
-                        }
-                    } else {
-                        if (self::$SandClock) {
-                            $string = SandClock::seconds($string, true, $this->getLanguage());
-                        }
-                    }
+                } elseif ($string_type === 'bytes' && self::$CuteBytes) {
+                    $string = (new CuteBytes)->bytes($string);
+                } elseif (self::$SandClock) {
+                    $string = SandClock::seconds($string, true, $this->getLanguage());
                 }
                 break;
             case 'price':
                 #Expects integer string, where last 2 numbers are the "fractions" (like cents)
                 if ($this->getCurrencyFraction()) {
-                    $string = substr_replace(strval(intval($string)), '.', -$this->getCurrencyPrecision(), 0);
+                    $string = substr_replace((string)(int)$string, '.', -$this->getCurrencyPrecision(), 0);
                     if (str_starts_with($string, '.')) {
                         $string = '0'.$string;
                     }
                 } else {
-                    $string = number_format(floatval($string), $this->getCurrencyPrecision(), '.', '');
+                    $string = number_format((float)$string, $this->getCurrencyPrecision(), '.', '');
                 }
                 if ((!$this->getEditable() || $footer === true) && !empty($this->getCurrencyCode())) {
                     #If code ends with space - place it before the value
                     if (str_ends_with($this->getCurrencyCode(), ' ')) {
                         $string = $this->getCurrencyCode().$string;
                     } else {
-                        $string = $string.' '.$this->getCurrencyCode();
+                        $string .= ' '.$this->getCurrencyCode();
                     }
                 }
-                if ($this->getEditable() && $footer === false) {
+                if ($footer === false && $this->getEditable()) {
                     $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixId.'_'.$string_type.'" type="number" step="0.01" min="0.00" inputmode="decimal" value="'.$string.'">';
                 }
                 break;
@@ -425,12 +414,10 @@ class array2table
                     $checkboxStatus = ' checked';
                 } elseif (preg_match('/^off|no$/mi', $string) === 1) {
                     $checkboxStatus = '';
+                } elseif ((bool)$string === true) {
+                    $checkboxStatus = ' checked';
                 } else {
-                    if (boolval($string) === true) {
-                        $checkboxStatus = ' checked';
-                    } else {
-                        $checkboxStatus = '';
-                    }
+                    $checkboxStatus = '';
                 }
                 $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixId.'_checkbox" type="checkbox"'.$checkboxStatus.($this->getEditable() && $footer === false ? '' : ' disabled').'>';
                 break;
@@ -439,10 +426,9 @@ class array2table
                 #Processes string only if validates as actual URI/URL or e-mail
                 if (preg_match(($string_type === 'url' ? self::$URIRegex : self::$eMailRegex), $string)) {
                     if ($string_type === 'url' && self::$PrettyURL) {
-                        /** @noinspection PhpFullyQualifiedNameUsageInspection */
-                        $string = \Simbiat\HTTP20\PrettyURL::pretty($string, urlSafe: $this->getSanitize());
+                        $string = PrettyURL::pretty($string, urlSafe: $this->getSanitize());
                     }
-                    if ($this->getEditable() && $footer === false) {
+                    if ($footer === false && $this->getEditable()) {
                         $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixId.'_'.$string_type.'" type="'.$string_type.'" inputmode="'.$string_type.'" value="'.$string.'">';
                     } else {
                         $string = '<a id="'.${$string_type.'id'}.'" class="'.$prefixId.'_'.$string_type.'" href="'.($string_type === 'url' ? '' : 'mailto:').$string.'" '.($string_type === 'url' ? 'target="_blank"' : '').'>'.$string.'</a>';
@@ -453,13 +439,13 @@ class array2table
                 break;
             case 'html':
                 #If editable, treat as textarea
-                if (!$this->getEditable() || $footer === true) {
+                if ($footer === true || !$this->getEditable()) {
                     $string = htmlentities($string, ENT_QUOTES | ENT_HTML5 | ENT_DISALLOWED);
                     break;
                 }
                 break;
             case 'textarea':
-                if ($this->getEditable() && $footer === false) {
+                if ($footer === false && $this->getEditable()) {
                     $string = '<textarea id="'.${$string_type.'id'}.'" class="'.$prefixId.'_'.$string_type.'" cols="'.$this->getTextareaSetting('cols').'" rows="'.$this->getTextareaSetting('rows').'" minlength="'.$this->getTextareaSetting('minlength').'" maxlength="'.$this->getTextareaSetting('maxlength').'" spellcheck="true">'.$string.'</textarea>';
                 }
                 break;
@@ -470,13 +456,13 @@ class array2table
                 if ($string_type === 'password') {
                     $string = '';
                 }
-                if ($this->getEditable() && $footer === false) {
+                if ($footer === false && $this->getEditable()) {
                     $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixId.'_'.$string_type.'" type="'.$string_type.'" inputmode="'.$string_type.'" value="'.$string.'"'.($string_type === 'password' ? 'pattern="'.self::$PasswordPattern.'"' : '').'>';
                 }
                 break;
             case 'img':
                 #If editable, treat as input="file"
-                if (!$this->getEditable() || $footer === true) {
+                if ($footer === true || !$this->getEditable()) {
                     #alt is set as "" to make some browsers consider images as non-essential. If an image needs to be considered as essential it's recommended not to show it through this library. Alternatively you can update it through JavaScript or other programmatic methods.
                     $string = '<img loading="lazy" src="'.$string.'" alt="" decoding="async" class="'.$prefixId.'_'.$string_type.'">';
                     break;
@@ -487,7 +473,7 @@ class array2table
                 break;
             case 'color':
                 #Attempting to sanitize the value provided allowing only 0-9 and a-f characters and padding from left to 6 characters
-                $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixId.'_color" type="color" value="#'.str_pad(substr(preg_replace(self::$ColorHexRegex, '', $string), 0, 6), 6, '0', STR_PAD_LEFT).'"'.($this->getEditable() && $footer === false ? '' : ' disabled').' pattern="^#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$">';
+                $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixId.'_color" type="color" value="#'.mb_str_pad(mb_substr(preg_replace(self::$ColorHexRegex, '', $string), 0, 6, 'UTF-8'), 6, '0', STR_PAD_LEFT, 'UTF-8').'"'.($this->getEditable() && $footer === false ? '' : ' disabled').' pattern="^#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$">';
                 break;
         }
         if ((!$this->getEditable() || $footer === true) && in_array($string_type, ['date','time','datetime','seconds','bytes','price','text','tel','password','textarea'])) {
@@ -577,28 +563,24 @@ class array2table
         foreach ($colgroup as $key=>$group) {
             if (empty($group['span'])) {
                 $colgroup[$key]['span'] = 1;
+            } elseif (is_numeric($group['span'])) {
+                $colgroup[$key]['span'] = (int)$group['span'];
             } else {
-                if (is_numeric($group['span'])) {
-                    $colgroup[$key]['span'] = intval($group['span']);
-                } else {
-                    throw new \UnexpectedValueException('Types were sent, but have different length than array.');
-                }
+                throw new \UnexpectedValueException('Types were sent, but have different length than array.');
             }
             if (!empty($group['class'])) {
                 if (is_array($group['class']) || is_object($group['class'])) {
                     throw new \UnexpectedValueException('Colgroup class provided cannot be cast to string.');
-                } else {
-                    $colgroup[$key]['class'] = strval($group['class']);
                 }
+                $colgroup[$key]['class'] = (string)$group['class'];
             }
             if (!empty($group['style'])) {
                 if (is_array($group['style']) || is_object($group['style'])) {
                     throw new \UnexpectedValueException('Colgroup style provided cannot be cast to string.');
-                } else {
-                    $colgroup[$key]['style'] = strval($group['style']);
                 }
+                $colgroup[$key]['style'] = (string)$group['style'];
             }
-            $this->groupsCount = $this->groupsCount + $colgroup[$key]['span'];
+            $this->groupsCount += $colgroup[ $key ]['span'];
         }
         $this->colgroup = $colgroup;
         return $this;
@@ -754,9 +736,8 @@ class array2table
     {
         if (empty($this->dateTimeFormat)) {
             return $this->getDateFormat().' '.$this->getTimeFormat();
-        } else {
-            return $this->dateTimeFormat;
         }
+        return $this->dateTimeFormat;
     }
 
     public function setDateTimeFormat(string $dateTimeFormat): self
@@ -780,7 +761,7 @@ class array2table
     {
         $curCount = $this->{$type.'Count'};
         $this->setCounter($type, $curCount+1);
-        return strval($curCount);
+        return (string)$curCount;
     }
 
     private function setCounter(string $type, int $value): self
@@ -798,13 +779,11 @@ class array2table
     {
         if (!in_array($setting, ['rows', 'cols', 'minlength', 'maxlength'])) {
             throw new \UnexpectedValueException('Unsupported textarea setting provided. Only rows, cols, minlength, maxlength are supported.');
-        } else {
-            if ($value !== '' && !ctype_digit($value)) {
-                throw new \UnexpectedValueException('Unsupported textarea setting value provided. Only integer string values and empty string are supported.');
-            } else {
-                $this->textareaSettings[$setting] = $value;
-            }
         }
+        if ($value !== '' && !ctype_digit($value)) {
+            throw new \UnexpectedValueException('Unsupported textarea setting value provided. Only integer string values and empty string are supported.');
+        }
+        $this->textareaSettings[$setting] = $value;
         return $this;
     }
 
@@ -820,18 +799,15 @@ class array2table
             if (count(array_unique(array_map('count', $array))) === 1) {
                 $this->multiFlag = true;
                 return true;
-            } else {
-                throw new \UnexpectedValueException('Not all child arrays have same length.');
             }
-        } else {
-            #Check that all values are scalars
-            if (count(array_filter(array_values($array), 'is_scalar')) === $length ) {
-                $this->multiFlag = false;
-                return false;
-            } else {
-                throw new \UnexpectedValueException('Array contains both scalar and non-scalar values.');
-            }
+            throw new \UnexpectedValueException('Not all child arrays have same length.');
         }
+        #Check that all values are scalars
+        if (count(array_filter(array_values($array), 'is_scalar')) === $length ) {
+            $this->multiFlag = false;
+            return false;
+        }
+        throw new \UnexpectedValueException('Array contains both scalar and non-scalar values.');
     }
 
     private function associative(array $array): bool
