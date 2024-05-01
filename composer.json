@@ -1,7 +1,12 @@
 {
     "name": "simbiat/array2table",
     "type": "library",
-    "keywords": ["array","table","php","converter"],
+    "keywords": [
+        "array",
+        "table",
+        "php",
+        "converter"
+    ],
     "description": "Library to convert arrays to table.",
     "homepage": "https://github.com/Simbiat/array2table",
     "license": "AGPL-3.0-or-later",
@@ -14,7 +19,8 @@
         }
     ],
     "require": {
-        "php": "^8.3"
+        "php": "^8.3",
+        "simbiat/arrayhelpers": "^2"
     },
     "suggest": {
         "simbiat/http20": "Provides 'pretty' function for pretty URLs",
@@ -26,8 +32,8 @@
             "Simbiat\\": "src/"
         }
     },
-	"support": {
-		"issues": "https://github.com/Simbiat/array2table/issues",
-		"source": "https://github.com/Simbiat/array2table"
-	}
+    "support": {
+        "issues": "https://github.com/Simbiat/array2table/issues",
+        "source": "https://github.com/Simbiat/array2table"
+    }
 }
