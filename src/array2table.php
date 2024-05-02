@@ -396,7 +396,7 @@ class array2table
                 if ($footer === false && $this->getEditable()) {
                     $string = '<input id="'.${$string_type.'id'}.'" class="'.$prefixId.'_'.$string_type.'" type="number" step="1" min="0" inputmode="decimal" value="'.$string.'">';
                 } elseif ($string_type === 'bytes' && self::$CuteBytes) {
-                    $string = (new CuteBytes())->bytes($string);
+                    $string = CuteBytes::bytes($string);
                 } elseif (self::$SandClock) {
                     $string = SandClock::seconds($string, true, $this->getLanguage());
                 }
