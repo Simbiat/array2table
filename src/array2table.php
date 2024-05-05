@@ -119,7 +119,7 @@ class array2table
             throw new \UnexpectedValueException('Empty array provided.');
         }
         #Get length
-        if (ArrayHelpers::multi($array, true, true)) {
+        if (ArrayHelpers::isMultiDimensional($array, true, true)) {
             $this->multiFlag = true;
             $array = array_values($array);
             $length = array_unique(array_map('\count', $array))[0];
