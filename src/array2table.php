@@ -6,7 +6,7 @@ declare(strict_types = 1);
 namespace Simbiat;
 
 use JetBrains\PhpStorm\Pure;
-use Simbiat\HTTP20\PrettyURL;
+use Simbiat\http20\PrettyURL;
 use function count, is_array, in_array, is_object;
 
 /**
