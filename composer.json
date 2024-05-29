@@ -20,7 +20,7 @@
     ],
     "require": {
         "php": "^8.3",
-        "simbiat/arrayhelpers": "^2"
+        "simbiat/arrayhelpers": "^2.4.6"
     },
     "suggest": {
         "simbiat/http20": "Provides 'pretty' function for pretty URLs",
