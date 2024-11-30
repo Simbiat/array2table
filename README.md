@@ -1,5 +1,18 @@
 # Array To Table converter
 
+Split data types into separate classes
+As result you can generate respective HTML elements from the respective classes directly, if required
+Sanitize flag is now per type
+Counts are now static in each respective class, and will increase with each successful generation
+Removed classes from the elements, since IDs will are enough (can be matched by wildcards)
+$dateformat moved to Types\Date class as $format and is now a public static string
+Date/time formatting with SandClock is done only if field is not editable and $sandClock attribute of the respective class is true
+Seconds now support all the SandClock attributes for seconds (as public static attributes)
+Seconds also now have a pattern for input field
+Bytes and Seconds now expect the CuteBytes and SandClock libraries to be present. If you do not want to use them - update respective flags in Type class
+URL now supports whitespace setting for PrettyURL. URLs are always sanitized
+Email and URL will throw an error if not a valid email/URL and not an empty string is provided, instead of creating a `span`
+
 This library is used for creating HTML tables using data provided to it in an array. When will you want to use it? I believe, there are 2 use-cases:
 
 - You are presenting a lot of homogeneous data from your database
@@ -17,7 +30,7 @@ Note, that it is discouraged to use this library, if you already have a template
 The best way to understand what you will be getting is a live example, so check out `sample.html` somewhere near this README. There you will find 3 tables, that were generated using following code:
 
 ```php
-echo (new \Simbiat\array2table)->setIdPrefix('sem_edit')->setCaption('Semantic, editable')->setFooter(['#func_sum','',''])->setCurrencyCode('USD ')->setCurrencyPrecision(2)->setCurrencyFraction(true)->setCheckbox(true)->setChecked(true)->setEditable(true)->setTextareaSetting('cols', '20')->setTextareaSetting('rows', '5')->setTypes(['number','string',['text','password','tel','date', 'time', 'datetime', 'seconds', 'bytes', 'price', 'checkbox', 'email', 'url', 'html', 'img', 'color']])->generate(
+echo (new \Simbiat\ArrayToTable\Generator)->setIdPrefix('sem_edit')->setCaption('Semantic, editable')->setFooter(['#func_sum','',''])->setCheckbox(true)->setChecked(true)->setEditable(true)->setTypes(['number','string',['text','password','tel','date', 'time', 'datetime', 'seconds', 'bytes', 'price', 'checkbox', 'email', 'url', 'html', 'img', 'color']])->generate(
     [
             ['Points'=>'1','Field'=>'Login','Value'=>'Simbiat'],
             ['1','Password','Simbiat'],
@@ -37,7 +50,7 @@ echo (new \Simbiat\array2table)->setIdPrefix('sem_edit')->setCaption('Semantic, 
     ]
 );
 
-echo (new \Simbiat\array2table)->setIdPrefix('sem_nonedit')->setCaption('Semantic, non-editable')->setFooter(['#func_sum','',''])->setCurrencyCode('USD ')->setCurrencyPrecision(2)->setCurrencyFraction(true)->setCheckbox(true)->setChecked(true)->setEditable(false)->setTextareaSetting('cols', '20')->setTextareaSetting('rows', '5')->setTypes(['number','string',['text','password','tel','date', 'time', 'datetime', 'seconds', 'bytes', 'price', 'checkbox', 'email', 'url', 'html', 'img', 'color']])->generate(
+echo (new \Simbiat\ArrayToTable\Generator)->setIdPrefix('sem_nonedit')->setCaption('Semantic, non-editable')->setFooter(['#func_sum','',''])->setCheckbox(true)->setChecked(true)->setEditable(false)->setTypes(['number','string',['text','password','tel','date', 'time', 'datetime', 'seconds', 'bytes', 'price', 'checkbox', 'email', 'url', 'html', 'img', 'color']])->generate(
     [
             ['Points'=>'1','Field'=>'Login','Value'=>'Simbiat'],
             ['1','Password','Simbiat'],
@@ -57,7 +70,7 @@ echo (new \Simbiat\array2table)->setIdPrefix('sem_nonedit')->setCaption('Semanti
     ]
 );
 
-echo (new \Simbiat\array2table)->setIdPrefix('nonsem_nonedit')->setCaption('Non-semantic, non-editable')->setSemantic(false)->setStyling(true)->setFooter(['#func_sum','',''])->setCurrencyCode('USD ')->setCurrencyPrecision(2)->setCurrencyFraction(true)->setCheckbox(true)->setChecked(true)->setEditable(false)->setTextareaSetting('cols', '20')->setTextareaSetting('rows', '5')->setTypes(['number','string',['text','password','tel','date', 'time', 'datetime', 'seconds', 'bytes', 'price', 'checkbox', 'email', 'url', 'html', 'img', 'color']])->generate(
+echo (new \Simbiat\ArrayToTable\Generator)->setIdPrefix('nonsem_nonedit')->setCaption('Non-semantic, non-editable')->setSemantic(false)->setStyling(true)->setFooter(['#func_sum','',''])->setCheckbox(true)->setChecked(true)->setEditable(false)->setTypes(['number','string',['text','password','tel','date', 'time', 'datetime', 'seconds', 'bytes', 'price', 'checkbox', 'email', 'url', 'html', 'img', 'color']])->generate(
     [
             ['Points'=>'1','Field'=>'Login','Value'=>'Simbiat'],
             ['1','Password','Simbiat'],
@@ -174,7 +187,7 @@ Each "inner" array in "outer" array represents a row, while each element in "inn
     <tr>
         <td>html</td>
         <td><code>&lt;textarea id="element_count" class="element_class" cols="cols" rows="rows" minlength="minlength" maxlength="maxlength" spellcheck="true"&gt;value&lt;/textarea&gt;</code></td>
-        <td>Treats string same as <code>textarea</code>, but sanitizes the value beofre processing.<td>
+        <td>Treats string same as <code>textarea</code>, but sanitizes the value before processing.<td>
     </tr>
     <tr>
         <td>textarea</td>
@@ -184,7 +197,7 @@ Each "inner" array in "outer" array represents a row, while each element in "inn
     <tr>
         <td>text</td>
         <td><code>&lt;input id="element_count" class="element_class" type="text" inputmode="text" value="value"&gt;</code></td>
-        <td>Returns regular text or respective <code><input></code> element.<td>
+        <td>Returns regular text or respective <code>&lt;input&gt;</code> element.<td>
     </tr>
     <tr>
         <td>tel</td>
@@ -218,127 +231,94 @@ Each "inner" array in "outer" array represents a row, while each element in "inn
 <table>
     <tr>
         <th>Setter function</th>
-        <th>Default value</th>
         <th>Description</th>
     </tr>
     <tr>
-        <td><code>setSemantic(bool $semantic)</code></td>
-        <td><code>true</code></td>
+        <td><code>setSemantic(bool $semantic = true)</code></td>
         <td>Generate <code>&lt;table&gt;</code> (semantic) if true or <code>&lt;div&gt;</code> (non-semantic) if false.</td>
     </tr>
     <tr>
-        <td><code>setStyling(bool $styling)</code></td>
-        <td><code>false</code></td>
+        <td><code>setStyling(bool $styling = false)</code></td>
         <td>Force basic inline styling for <code>&lt;div&gt;</code> variant. Custom styling is recommended.</td>
     </tr>
     <tr>
-        <td><code>setCheckbox(bool $checkbox)</code></td>
-        <td><code>false</code></td>
+        <td><code>setCheckbox(bool $checkbox = false)</code></td>
         <td>Generate with first column being a checkbox with unique ID if true. Works for multi-arrays only.</td>
     </tr>
     <tr>
-        <td><code>setChecked(bool $checked)</code></td>
-        <td><code>false</code></td>
+        <td><code>setChecked(bool $checked = false)</code></td>
         <td>Generate with first column checkbox checked if true.</td>
     </tr>
     <tr>
-        <td><code>setSanitize(bool $sanitize)</code></td>
-        <td><code>true</code></td>
+        <td><code>setSanitize(bool $sanitize) = true</code></td>
         <td>Attempt to strip tags and encode HTML entities, unless <code>html</code> data type.</td>
     </tr>
     <tr>
-        <td><code>setEditable(bool $editable)</code></td>
-        <td><code>false</code></td>
+        <td><code>setEditable(bool $editable = false)</code></td>
         <td>Flag to allow edit of the editable fields.</td>
     </tr>
     <tr>
-        <td><code>setCaption(string $caption)</code></td>
-        <td><code>''</code></td>
+        <td><code>setCaption(string $caption = '')</code></td>
         <td>Optional caption (name) for tables.</td>
     </tr>
     <tr>
-        <td><code>setHeader(array $header)</code></td>
-        <td><code>[]</code></td>
+        <td><code>setHeader(array $header = [])</code></td>
         <td>Optional header for tables. Expects array with same length as number of columns in data provided. Alternatively will attempt to use keys from first row, if it's an associative array.</td>
     </tr>
     <tr>
-        <td><code>setRepeatHeader(int $repeatHeader)</code></td>
-        <td><code>0</code></td>
+        <td><code>setRepeatHeader(int $repeatHeader = 0)</code></td>
         <td>If value is not 0, will repeat header every X number of lines, where X is the value set by this setter. Recommended for large tables.</td>
     </tr>
     <tr>
-        <td><code>setFooter(array $footer)</code></td>
-        <td><code>[]</code></td>
+        <td><code>setFooter(array $footer = [])</code></td>
         <td>Optional footer for tables. Expects array with same length as number of columns in data provided. Supports functions for columns with singular data type: <code>'#func_sum'</code> (sum of all values in column), <code>'#func_avg'</code> (average of all values in column), <code>'#func_min'</code> (lowest value in column), <code>'#func_max'</code> (maximum value in column)</td>
     </tr>
     <tr>
-        <td><code>setFooterHeader(bool $footerHeader)</code></td>
-        <td><code>false</code></td>
+        <td><code>setFooterHeader(bool $footerHeader = false)</code></td>
         <td>Use header text in footer.</td>
     </tr>
     <tr>
-        <td><code>setColGroup(array $colgroup)</code></td>
-        <td><code>[]</code></td>
+        <td><code>setColGroup(array $colgroup = [])</code></td>
         <td>Setter for optional <code>colgroup</code> definition, which allows grouping of columns through HTML classes. Expect array like <code>[['span'=>2,'class'=>'col_class','style'=>'col_style'],[...],...,[...]]</code>. <code>'span'</code> expect a numeric value identifying number of columns in a group. <code>'class'</code> expects a class that will be additionally applied to the group. <code>'style'</code> expects a CSS style string that will be additionally applied to group.</td>
     </tr>
     <tr>
-        <td><code>setTypes(array $types)</code></td>
-        <td><code>[]</code></td>
+        <td><code>setTypes(array $types = [])</code></td>
         <td>Optional list of types to be applied to columns and rows. Expects an array in format as described in [How to use](#how-to-use).</td>
     </tr>
     <tr>
-        <td><code>setIdPrefix(string $idPrefix)</code></td>
-        <td><code>'simbiat'</code></td>
+        <td><code>setIdPrefix(string $idPrefix = 'simbiat')</code></td>
         <td>Optional prefix for elements' IDs and some of the classes.</td>
     </tr>
     <tr>
-        <td><code>setMultipleFiles(bool $multipleFiles)</code></td>
-        <td><code>false</code></td>
+        <td><code>setMultipleFiles(bool $multipleFiles = false)</code></td>
         <td>Option to allow multiple files upload for file fields.</td>
     </tr>
     <tr>
-        <td><code>setDateFormat(string $dateformat)</code></td>
-        <td><code>'Y-m-d'</code></td>
+        <td><code>setDateFormat(string $dateformat = 'Y-m-d')</code></td>
         <td>Date format to use with <code>Simbiat\SandClock</code> library for <code>date</code> type.</td>
     </tr>
     <tr>
-        <td><code>setTimeFormat(string $timeFormat)</code></td>
-        <td><code>'H:i:s'</code></td>
+        <td><code>setTimeFormat(string $timeFormat = 'H:i:s')</code></td>
         <td>Time format to use with <code>Simbiat\SandClock</code> library for <code>time</code> type.</td>
     </tr>
     <tr>
-        <td><code>setDateTimeFormat(string $dateTimeFormat)</code></td>
-        <td><code>''</code></td>
+        <td><code>setDateTimeFormat(string $dateTimeFormat = '')</code></td>
         <td>Date and time format to use with <code>Simbiat\SandClock</code> library for <code>date</code> type. If empty will combine date format and time format set by respective setters as <code>date time</code>.</td>
     </tr>
     <tr>
-        <td><code>setLanguage(string $language)</code></td>
-        <td><code>'en'</code></td>
+        <td><code>setLanguage(string $language = 'en')</code></td>
         <td>Language to use with <code>Simbiat\SandClock</code> library for <code>seconds</code> type.</td>
     </tr>
     <tr>
-        <td><code>setTextareaSetting(string $setting, string $value)</code></td>
-        <td><code>[
-        'rows'=>'20',
-        'cols'=>'2',
-        'minlength'=>'',
-        'maxlength'=>'',
-    ]</code></td>
+        <td><code>setBytesSettings(int $power = 1000, int $decimals = 2, string $dec_point = '.', string $thousands_sep = ',', int $numbers = 0, bool $bits = false)</code></td>
+        <td>Customization for bytes styling using <a href="https://github.com/Simbiat/cute-bytes" target="_blank">CuteBytes</a> class.</td>
+    </tr>
+    <tr>
+        <td><code>setTextareaSetting(int $rows = 20, int $cols = 20, int $minlength = 0, int $maxlength = 0)</code></td>
         <td>Customization options for <code>textarea</code> elements.</td>
     </tr>
     <tr>
-        <td><code>setCurrencyCode(string $currencyCode)</code></td>
-        <td><code>''</code></td>
-        <td>Set an optional currency code (or symbol) for <code>price</code> type. Add space at the end to put it before the value.</td>
-    </tr>
-    <tr>
-        <td><code>setCurrencyPrecision(int $currencyPrecision)</code></td>
-        <td><code>2</code></td>
-        <td>Set precision of floating point (number of digits after the dot) for <code>price</code> type.</td>
-    </tr>
-    <tr>
-        <td><code>setCurrencyFraction(bool $currencyFraction)</code></td>
-        <td><code>true</code></td>
-        <td>Set to <code>false</code> to treat values for <code>price</code> type as floats. Treat values as fractions (like cents in case of USD) by default.</td>
+        <td><code>setCurrencySettings(string $code = '', int $precision = 2, bool $fraction = true)</code></td>
+        <td>Currency settings for <code>price</code> type.</td>
     </tr>
 </table>

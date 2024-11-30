@@ -20,6 +20,7 @@
     ],
     "require": {
         "php": "^8.3",
+        "ext-mbstring": "*",
         "simbiat/arrayhelpers": "^2.4.6"
     },
     "suggest": {
@@ -29,7 +30,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Simbiat\\": "src/"
+            "Simbiat\\ArrayToTable\\": "src/"
         }
     },
     "support": {
