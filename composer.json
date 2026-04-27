@@ -12,16 +12,17 @@
     "license": "AGPL-3.0-or-later",
     "authors": [
         {
-            "name": "Dmitry Kustov",
-            "email": "simbiat@outlook.com",
-            "homepage": "https://www.simbiat.dev",
+            "name": "Dmitrii Kustov",
+            "email": "support@simbiat.eu",
+            "homepage": "https://www.simbiat.eu",
             "role": "Developer"
         }
     ],
     "require": {
-        "php": "^8.3",
+        "php": "^8.5",
         "ext-mbstring": "*",
-        "simbiat/arrayhelpers": "^2.4.6"
+        "simbiat/arrayhelpers": "^4.0",
+        "simbiat/stringhelpers": "^2.0"
     },
     "suggest": {
         "simbiat/http20": "Provides 'pretty' function for pretty URLs",
@@ -30,7 +31,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Simbiat\\ArrayToTable\\": "src/"
+            "Simbiat\\HTML\\ArrayToTable\\": ""
         }
     },
     "support": {

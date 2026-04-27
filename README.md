@@ -6,7 +6,7 @@ Sanitize flag is now per type
 Counts are now static in each respective class, and will increase with each successful generation
 Removed classes from the elements, since IDs will are enough (can be matched by wildcards)
 $dateformat moved to Types\Date class as $format and is now a public static string
-Date/time formatting with SandClock is done only if field is not editable and $sandClock attribute of the respective class is true
+Date/time formatting with SandClock is done only if field is not editable and $sand_clock attribute of the respective class is true
 Seconds now support all the SandClock attributes for seconds (as public static attributes)
 Seconds also now have a pattern for input field
 Bytes and Seconds now expect the CuteBytes and SandClock libraries to be present. If you do not want to use them - update respective flags in Type class
@@ -42,15 +42,15 @@ echo (new \Simbiat\ArrayToTable\Generator)->setIdPrefix('sem_edit')->setCaption(
             ['1','Image size','1234567',],
             ['1','Salary','123456',],
             ['1','Are you a robot?','No',],
-            ['1','Email','simbiat@outlook.com',],
-            ['1','Website','https://www.simbiat.dev',],
-            ['1','Signature','<a href="https://www.simbiat.dev">Awesome website</a>'],
+            ['1','Email','support@simbiat.eu',],
+            ['1','Website','https://www.simbiat.eu',],
+            ['1','Signature','<a href="https://www.simbiat.eu">Awesome website</a>'],
             ['1','Avatar','https://media.kitsu.io/users/avatars/41172/large.jpg'],
             ['1','Favorite color','006E72'],
     ]
 );
 
-echo (new \Simbiat\ArrayToTable\Generator)->setIdPrefix('sem_nonedit')->setCaption('Semantic, non-editable')->setFooter(['#func_sum','',''])->setCheckbox(true)->setChecked(true)->setEditable(false)->setTypes(['number','string',['text','password','tel','date', 'time', 'datetime', 'seconds', 'bytes', 'price', 'checkbox', 'email', 'url', 'html', 'img', 'color']])->generate(
+echo (new \Simbiat\ArrayToTable\Generator)->setIdPrefix('sem_non_edit')->setCaption('Semantic, non-editable')->setFooter(['#func_sum','',''])->setCheckbox(true)->setChecked(true)->setEditable(false)->setTypes(['number','string',['text','password','tel','date', 'time', 'datetime', 'seconds', 'bytes', 'price', 'checkbox', 'email', 'url', 'html', 'img', 'color']])->generate(
     [
             ['Points'=>'1','Field'=>'Login','Value'=>'Simbiat'],
             ['1','Password','Simbiat'],
@@ -62,15 +62,15 @@ echo (new \Simbiat\ArrayToTable\Generator)->setIdPrefix('sem_nonedit')->setCapti
             ['1','Image size','1234567',],
             ['1','Salary','123456',],
             ['1','Are you a robot?','No',],
-            ['1','Email','simbiat@outlook.com',],
-            ['1','Website','https://www.simbiat.dev',],
-            ['1','Signature','<a href="https://www.simbiat.dev">Awesome website</a>'],
+            ['1','Email','support@simbiat.eu',],
+            ['1','Website','https://www.simbiat.eu',],
+            ['1','Signature','<a href="https://www.simbiat.eu">Awesome website</a>'],
             ['1','Avatar','https://media.kitsu.io/users/avatars/41172/large.jpg'],
             ['1','Favorite color','006E72'],
     ]
 );
 
-echo (new \Simbiat\ArrayToTable\Generator)->setIdPrefix('nonsem_nonedit')->setCaption('Non-semantic, non-editable')->setSemantic(false)->setStyling(true)->setFooter(['#func_sum','',''])->setCheckbox(true)->setChecked(true)->setEditable(false)->setTypes(['number','string',['text','password','tel','date', 'time', 'datetime', 'seconds', 'bytes', 'price', 'checkbox', 'email', 'url', 'html', 'img', 'color']])->generate(
+echo (new \Simbiat\ArrayToTable\Generator)->setIdPrefix('non_sem_non_edit')->setCaption('Non-semantic, non-editable')->setSemantic(false)->setStyling(true)->setFooter(['#func_sum','',''])->setCheckbox(true)->setChecked(true)->setEditable(false)->setTypes(['number','string',['text','password','tel','date', 'time', 'datetime', 'seconds', 'bytes', 'price', 'checkbox', 'email', 'url', 'html', 'img', 'color']])->generate(
     [
             ['Points'=>'1','Field'=>'Login','Value'=>'Simbiat'],
             ['1','Password','Simbiat'],
@@ -82,9 +82,9 @@ echo (new \Simbiat\ArrayToTable\Generator)->setIdPrefix('nonsem_nonedit')->setCa
             ['1','Image size','1234567',],
             ['1','Salary','123456',],
             ['1','Are you a robot?','No',],
-            ['1','Email','simbiat@outlook.com',],
-            ['1','Website','https://www.simbiat.dev',],
-            ['1','Signature','<a href="https://www.simbiat.dev">Awesome website</a>'],
+            ['1','Email','support@simbiat.eu',],
+            ['1','Website','https://www.simbiat.eu',],
+            ['1','Signature','<a href="https://www.simbiat.eu">Awesome website</a>'],
             ['1','Avatar','https://media.kitsu.io/users/avatars/41172/large.jpg'],
             ['1','Favorite color','006E72'],
     ]
@@ -121,9 +121,9 @@ generate(
             ['1','Image size','1234567',],
             ['1','Salary','123456',],
             ['1','Are you a robot?','No',],
-            ['1','Email','simbiat@outlook.com',],
-            ['1','Website','https://www.simbiat.dev',],
-            ['1','Signature','<a href="https://www.simbiat.dev">Awesome website</a>'],
+            ['1','Email','support@simbiat.eu',],
+            ['1','Website','https://www.simbiat.eu',],
+            ['1','Signature','<a href="https://www.simbiat.eu">Awesome website</a>'],
             ['1','Avatar','https://media.kitsu.io/users/avatars/41172/large.jpg'],
             ['1','Favorite color','006E72'],
     ]
@@ -221,7 +221,7 @@ Each "inner" array in "outer" array represents a row, while each element in "inn
     </tr>
     <tr>
         <td>color</td>
-        <td><code>&lt;input id="'.${$string_type.'id'}.'" class="'.$prefixId.'_color" type="color" value="#ffffff" pattern="^#?([a-fA-F0-9]{6})$"&gt;</code></td>
+        <td><code>&lt;input id="'.${$string_type.'id'}.'" class="'.$prefix_id.'_color" type="color" value="#ffffff" pattern="^#?([a-fA-F0-9]{6})$"&gt;</code></td>
         <td>Returns color picker if supported by browser. No need to send <code>#</code> when providing data, since it will be added automatically.<td>
     </tr>
 </table>
@@ -266,7 +266,7 @@ Each "inner" array in "outer" array represents a row, while each element in "inn
         <td>Optional header for tables. Expects array with same length as number of columns in data provided. Alternatively will attempt to use keys from first row, if it's an associative array.</td>
     </tr>
     <tr>
-        <td><code>setRepeatHeader(int $repeatHeader = 0)</code></td>
+        <td><code>setRepeatHeader(int $repeat_header = 0)</code></td>
         <td>If value is not 0, will repeat header every X number of lines, where X is the value set by this setter. Recommended for large tables.</td>
     </tr>
     <tr>
@@ -274,7 +274,7 @@ Each "inner" array in "outer" array represents a row, while each element in "inn
         <td>Optional footer for tables. Expects array with same length as number of columns in data provided. Supports functions for columns with singular data type: <code>'#func_sum'</code> (sum of all values in column), <code>'#func_avg'</code> (average of all values in column), <code>'#func_min'</code> (lowest value in column), <code>'#func_max'</code> (maximum value in column)</td>
     </tr>
     <tr>
-        <td><code>setFooterHeader(bool $footerHeader = false)</code></td>
+        <td><code>setFooterHeader(bool $footer_header = false)</code></td>
         <td>Use header text in footer.</td>
     </tr>
     <tr>
@@ -286,11 +286,11 @@ Each "inner" array in "outer" array represents a row, while each element in "inn
         <td>Optional list of types to be applied to columns and rows. Expects an array in format as described in [How to use](#how-to-use).</td>
     </tr>
     <tr>
-        <td><code>setIdPrefix(string $idPrefix = 'simbiat')</code></td>
+        <td><code>setIdPrefix(string $id_prefix = 'simbiat')</code></td>
         <td>Optional prefix for elements' IDs and some of the classes.</td>
     </tr>
     <tr>
-        <td><code>setMultipleFiles(bool $multipleFiles = false)</code></td>
+        <td><code>setMultipleFiles(bool $multiple_files = false)</code></td>
         <td>Option to allow multiple files upload for file fields.</td>
     </tr>
     <tr>
@@ -298,11 +298,11 @@ Each "inner" array in "outer" array represents a row, while each element in "inn
         <td>Date format to use with <code>Simbiat\SandClock</code> library for <code>date</code> type.</td>
     </tr>
     <tr>
-        <td><code>setTimeFormat(string $timeFormat = 'H:i:s')</code></td>
+        <td><code>setTimeFormat(string $time_format = 'H:i:s')</code></td>
         <td>Time format to use with <code>Simbiat\SandClock</code> library for <code>time</code> type.</td>
     </tr>
     <tr>
-        <td><code>setDateTimeFormat(string $dateTimeFormat = '')</code></td>
+        <td><code>setDateTimeFormat(string $datetime_format = '')</code></td>
         <td>Date and time format to use with <code>Simbiat\SandClock</code> library for <code>date</code> type. If empty will combine date format and time format set by respective setters as <code>date time</code>.</td>
     </tr>
     <tr>
