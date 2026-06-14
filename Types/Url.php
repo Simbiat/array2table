@@ -33,7 +33,7 @@ class Url extends AbstractType
      */
     protected function regular(mixed $value): string
     {
-        return /** @lang HTML */ '<a id="'.$this->id.'" href="'.$this->check($value).'" target="'.self::$target.'" rel="noopener noreferrer">';
+        return /** @lang HTML */ '<a id="'.$this->id.'" href="'.$this->check($value).'" target="'.self::$target.'" rel="noreferrer">';
     }
     
     /**

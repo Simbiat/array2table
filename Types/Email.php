@@ -19,7 +19,7 @@ class Email extends AbstractType
      */
     protected function regular(mixed $value): string
     {
-        return /** @lang HTML */ '<a id="'.$this->id.'" href="mailto:'.$this->check($value).'" rel="noopener noreferrer">';
+        return /** @lang HTML */ '<a id="'.$this->id.'" href="mailto:'.$this->check($value).'" rel="noreferrer">';
     }
     
     /**
